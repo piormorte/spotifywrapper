@@ -29,16 +29,22 @@ PWA local-first para analisar o histórico musical vitalício a partir dos arqui
 | `npm run lint`      | ESLint, incluindo as regras de fronteira entre módulos                   |
 | `npm run check`     | Formatação, lint, typecheck, testes e build                              |
 
-## Deploy (Cloudflare Pages)
+## Deploy (Cloudflare)
 
-Conecte o repositório no painel do Cloudflare Pages com:
+O app é publicado como **Worker com arquivos estáticos** (`wrangler.jsonc`): não há código de servidor, só a pasta `dist`. Endereço atual: https://spotifywrapper.darkutsubyo.workers.dev
+
+Configuração do projeto no Cloudflare (Workers & Pages → conectar o repositório):
 
 - **Build command:** `npm run build`
-- **Build output directory:** `dist`
-- **Variável de ambiente:** `NODE_VERSION=22`
+- **Deploy command:** `npx wrangler deploy`
+- **Root directory:** `/`
+- O `name` em `wrangler.jsonc` precisa ser igual ao nome do Worker no painel (hoje: `spotifywrapper`).
 
-Os headers de segurança (CSP com `connect-src 'self'`) são aplicados por `public/_headers`.
-Sem um `404.html`, o Pages serve `index.html` em rotas desconhecidas (modo SPA).
+Os headers de segurança (CSP com `connect-src 'self'`) e de cache vêm de `public/_headers`.
+`public/.assetsignore` deixa os sourcemaps fora do upload. Rotas desconhecidas servem
+`index.html` (`not_found_handling: single-page-application`).
+
+Para testar a configuração sem publicar: `npm run build && npx wrangler deploy --dry-run`.
 
 ## PWA
 

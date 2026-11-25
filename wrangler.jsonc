@@ -1,0 +1,18 @@
+{
+  // Cloudflare Workers static assets: the built PWA in ./dist, no server code.
+  // Committed so builds never depend on Wrangler's automatic project setup.
+  // "name" must match the Worker's name in the Cloudflare dashboard.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "spotifywrapper",
+  "compatibility_date": "2025-09-01",
+  "workers_dev": true,
+  // Per-version preview URLs are not needed for a single-user app.
+  "preview_urls": false,
+  // No Workers Logs: the app collects no telemetry (docs/SECURITY.md).
+  "observability": { "enabled": false },
+  "assets": {
+    "directory": "./dist",
+    // Hash routing means every real path exists; unknown paths serve index.html.
+    "not_found_handling": "single-page-application",
+  },
+}
