@@ -31,10 +31,12 @@ test('renders without console errors, CSP violations or external requests', asyn
   expect(problems).toEqual([]);
 });
 
-test('has no horizontal overflow at the current viewport', async ({ page }) => {
-  await page.goto('/');
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
-  expect(overflow).toBeLessThanOrEqual(0);
-});
+for (const path of ['/', '/#/exemplo']) {
+  test(`has no horizontal overflow at the current viewport: ${path}`, async ({ page }) => {
+    await page.goto(path);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+}
