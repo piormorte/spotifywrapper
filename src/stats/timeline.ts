@@ -112,35 +112,39 @@ export interface YearLeader {
  * (ties: listening time, then name).
  */
 export function dominantArtists(db: Database): YearLeader[] {
-  return db
-    .selectObjects(
+  // One indexed range query per year: cheaper than deriving the year of every
+  // play with strftime().
+  const leaders: YearLeader[] = [];
+  for (const year of yearsWithData(db)) {
+    const from = Date.UTC(year, 0, 1);
+    const to = Date.UTC(year + 1, 0, 1);
+    const rows = db.selectObjects(
       `WITH ya AS (
-         SELECT CAST(strftime('%Y', p.local_end / 1000, 'unixepoch') AS INTEGER) AS year,
-                t.artist_id, SUM(p.ms_played >= ${STREAM_THRESHOLD_MS}) AS streams,
+         SELECT t.artist_id, SUM(p.ms_played >= ${STREAM_THRESHOLD_MS}) AS streams,
                 SUM(p.ms_played) AS ms
          FROM plays p JOIN tracks t ON t.id = p.track_id
-         WHERE t.kind = 'track' AND p.ms_played > 0
-         GROUP BY year, t.artist_id),
-       ranked AS (
-         SELECT ya.*, a.name,
-                SUM(ya.streams) OVER (PARTITION BY ya.year) AS year_streams,
-                ROW_NUMBER() OVER (PARTITION BY ya.year
-                                   ORDER BY ya.streams DESC, ya.ms DESC, a.name COLLATE NOCASE) AS rn
-         FROM ya JOIN artists a ON a.id = ya.artist_id)
-       SELECT year, artist_id, name, streams, ms, year_streams
-       FROM ranked WHERE rn = 1 ORDER BY year`,
-    )
-    .map((r) => {
-      const yearStreams = Number(r['year_streams']);
-      return {
-        year: Number(r['year']),
-        artistId: Number(r['artist_id']),
-        artist: typeof r['name'] === 'string' ? r['name'] : '',
-        streams: Number(r['streams']),
-        msPlayed: Number(r['ms']),
-        share: yearStreams > 0 ? Number(r['streams']) / yearStreams : 0,
-      };
+         WHERE t.kind = 'track' AND p.ms_played > 0 AND p.local_end >= ? AND p.local_end < ?
+         GROUP BY t.artist_id)
+       SELECT ya.artist_id, a.name, ya.streams, ya.ms,
+              (SELECT SUM(streams) FROM ya) AS year_streams
+       FROM ya JOIN artists a ON a.id = ya.artist_id
+       ORDER BY ya.streams DESC, ya.ms DESC, a.name COLLATE NOCASE
+       LIMIT 1`,
+      [from, to],
+    );
+    const r = rows[0];
+    if (!r) continue;
+    const yearStreams = Number(r['year_streams']);
+    leaders.push({
+      year,
+      artistId: Number(r['artist_id']),
+      artist: typeof r['name'] === 'string' ? r['name'] : '',
+      streams: Number(r['streams']),
+      msPlayed: Number(r['ms']),
+      share: yearStreams > 0 ? Number(r['streams']) / yearStreams : 0,
     });
+  }
+  return leaders;
 }
 
 /** Calendar years with music data, ascending. */

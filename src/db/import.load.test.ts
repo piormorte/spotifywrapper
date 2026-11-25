@@ -71,6 +71,18 @@ describe.skipIf(!process.env['LOAD'])('load', () => {
     expect(month).not.toBeNull();
 
     t0 = performance.now();
+    library.timeline({ preset: 'all' }, 'week');
+    const timelineMs = performance.now() - t0;
+
+    t0 = performance.now();
+    library.dominantArtists();
+    const leadersMs = performance.now() - t0;
+
+    t0 = performance.now();
+    library.ranking({ kind: 'tracks', period: { preset: 'all' }, sort: 'streams', limit: null });
+    const rankingAllMs = performance.now() - t0;
+
+    t0 = performance.now();
     library.setTimeZone('Asia/Tokyo');
     const timeZoneMs = performance.now() - t0;
 
@@ -94,6 +106,9 @@ describe.skipIf(!process.env['LOAD'])('load', () => {
         searchMs: +searchMs.toFixed(0),
         overviewAllMs: +overviewMs.toFixed(0),
         overview30dMs: +overview30dMs.toFixed(0),
+        timelineWeeksMs: +timelineMs.toFixed(0),
+        yearLeadersMs: +leadersMs.toFixed(0),
+        rankingAllTracksMs: +rankingAllMs.toFixed(0),
         timeZoneS: +(timeZoneMs / 1000).toFixed(1),
         backupS: +(backupMs / 1000).toFixed(1),
         backupMB: +(bytes.byteLength / 1e6).toFixed(1),
