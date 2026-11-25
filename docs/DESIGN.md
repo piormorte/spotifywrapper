@@ -55,7 +55,16 @@ O tema segue `prefers-color-scheme` e pode ser forçado com `data-theme="light|d
 
 ## Exportações
 
-São peças editoriais desenhadas diretamente em Canvas, com Inter, sem capas (`src/design/StorySpecimen.tsx`). O motor de exportação definitivo é construído na Etapa 7.
+O Export Studio (`#exportar`) desenha peças editoriais diretamente em Canvas (`src/export/`), sem React e sem capturas de tela:
+
+- **Unidade de design:** 1 u = 1 px no lado menor de 1080, de modo que todos os formatos escalam a partir do mesmo desenho.
+- **Formatos:** Stories 1080 × 1920, Quadrado 1080 × 1080, X 1200 × 675, tamanho livre (600–4000 px) e relatório PDF de 4 páginas A4.
+- **Layout:**
+  - Os blocos (número principal, grade de estatísticas, ranking, barras, observações) fluem entre o cabeçalho e o rodapé.
+  - Formatos largos usam duas colunas.
+  - Quando falta espaço, listas anteriores encolhem antes de um bloco posterior ser descartado.
+- **Cor e tipografia:** sempre Inter. Um único destaque: o período, em jade, acima do título. A barra máxima dos gráficos usa a cor do texto, não o destaque.
+- **Sem capas:** a v1 não usa a Web API.
 
 ## Decisões aprovadas (25/11/2026)
 

@@ -3,6 +3,7 @@ import { ReferencePage } from '../design/ReferencePage.tsx';
 import { ImportPage } from '../features/import/ImportPage.tsx';
 import { AnalyticsPage } from '../features/analytics/AnalyticsPage.tsx';
 import { PersonalityPage } from '../features/analytics/PersonalityPage.tsx';
+import { ExportStudioPage } from '../features/export/ExportStudioPage.tsx';
 import { HistoryPage } from '../features/history/HistoryPage.tsx';
 import { OverviewPage } from '../features/overview/OverviewPage.tsx';
 import { RankingsPage } from '../features/rankings/RankingsPage.tsx';
@@ -81,6 +82,8 @@ export function App() {
         return <AnalyticsPage period={period} onPeriodChange={setPeriod} />;
       case 'perfil':
         return <PersonalityPage period={period} onPeriodChange={setPeriod} />;
+      case 'exportar':
+        return <ExportStudioPage period={period} onPeriodChange={setPeriod} />;
       case 'importar':
         return <ImportPage />;
       case 'ajustes':

@@ -1,6 +1,7 @@
 import type { BackupInfo } from './backup.ts';
 import type { ImportProgress, ImportResult, RestoreMode, RestoreResult } from './library.ts';
 import type { HistoryPage, HistoryQuery, ImportLogEntry, LibrarySummary } from './queries.ts';
+import type { ExportBundle } from '../export/types.ts';
 import type { Analytics, FadedArtist } from '../stats/analytics.ts';
 import type { Overview } from '../stats/overview.ts';
 import type { Observation } from '../stats/personality.ts';
@@ -26,6 +27,7 @@ export interface LibraryOps {
   analytics: [PeriodSpec, Analytics | null];
   personality: [PeriodSpec, { analytics: Analytics; observations: Observation[] } | null];
   fadedArtists: [undefined, FadedArtist[]];
+  exportBundle: [PeriodSpec, ExportBundle | null];
   ranking: [RankingQuery, Ranking | null];
   timeline: [{ period: PeriodSpec; granularity: Granularity | null }, Timeline | null];
   dominantArtists: [undefined, YearLeader[]];

@@ -15,18 +15,30 @@ interface SaveFilePickerWindow {
   }>;
 }
 
+export interface FileKind {
+  readonly mime: string;
+  readonly extension: string;
+  readonly description: string;
+}
+
+export const FILE_KINDS = {
+  backup: { mime: 'application/vnd.sqlite3', extension: '.sqlite', description: 'Backup do Liner' },
+  png: { mime: 'image/png', extension: '.png', description: 'Imagem PNG' },
+  pdf: { mime: 'application/pdf', extension: '.pdf', description: 'Documento PDF' },
+} as const satisfies Record<string, FileKind>;
+
 export async function saveFile(
   bytes: Uint8Array,
   fileName: string,
-  mime: string,
+  kind: FileKind,
 ): Promise<boolean> {
-  const blob = new Blob([bytes as Uint8Array<ArrayBuffer>], { type: mime });
+  const blob = new Blob([bytes as Uint8Array<ArrayBuffer>], { type: kind.mime });
   const picker = (window as unknown as SaveFilePickerWindow).showSaveFilePicker;
   if (picker) {
     try {
       const handle = await picker({
         suggestedName: fileName,
-        types: [{ description: 'Backup do Liner', accept: { [mime]: ['.sqlite'] } }],
+        types: [{ description: kind.description, accept: { [kind.mime]: [kind.extension] } }],
       });
       const writable = await handle.createWritable();
       await writable.write(blob);

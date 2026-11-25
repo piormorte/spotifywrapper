@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { saveFile } from '../../app/download.ts';
+import { FILE_KINDS, saveFile } from '../../app/download.ts';
 import { useLibrary } from '../../app/library-context.ts';
 import type { BackupInfo } from '../../db/backup.ts';
 import { LibraryError } from '../../db/client.ts';
@@ -57,7 +57,7 @@ export function BackupSection() {
     setBackupState('working');
     try {
       const { bytes, info } = await client.call('backup', undefined);
-      const done = await saveFile(bytes, backupFileName(info.createdAt), 'application/vnd.sqlite3');
+      const done = await saveFile(bytes, backupFileName(info.createdAt), FILE_KINDS.backup);
       setSaved(info);
       setLastBackup(info.createdAt);
       setBackupState(done ? 'saved' : 'idle');

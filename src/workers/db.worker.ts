@@ -63,6 +63,7 @@ const handlers: Handlers = {
   analytics: (library, spec) => library.analytics(spec),
   personality: (library, spec) => library.personality(spec),
   fadedArtists: (library) => library.fadedArtists(),
+  exportBundle: (library, spec) => library.exportBundle(spec),
   ranking: (library, query) => library.ranking(query),
   timeline: (library, { period, granularity }) => library.timeline(period, granularity),
   dominantArtists: (library) => library.dominantArtists(),

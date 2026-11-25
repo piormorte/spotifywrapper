@@ -11,6 +11,7 @@ export const ROUTES = [
   'linha-do-tempo',
   'analises',
   'perfil',
+  'exportar',
   'importar',
   'ajustes',
   'mais',
