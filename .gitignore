@@ -10,3 +10,5 @@ test-results
 Streaming_History*.json
 StreamingHistory*.json
 my_spotify_data*
+# ...except the synthetic test fixtures (see tests/fixtures/README.md).
+!tests/fixtures/*.json
