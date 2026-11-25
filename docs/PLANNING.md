@@ -1,9 +1,10 @@
-# Planejamento — Music Analytics (codinome)
+# Planejamento — Liner
 
 Revisão 3 · 25/11/2026 · Direção aprovada: **v1 local-first, sem Spotify Web API**
 
-> O nome definitivo do produto será escolhido na Etapa 1. Ele não pode conter "Spotify" (ver §2.4).
+> Nome do produto: **Liner** (aprovado na Etapa 1). Ele não contém "Spotify" (ver §2.4).
 > O nome do repositório (`spotifywrapper`) é provisório.
+> Etapa 1 aprovada em 25/11/2026: ver `docs/DESIGN.md`.
 
 ---
 
@@ -49,7 +50,7 @@ Revisão 3 · 25/11/2026 · Direção aprovada: **v1 local-first, sem Spotify We
 ### 2.4 Marca
 
 - "Spotify" não aparece no nome nem no ícone do produto. O app não usa o logo nem o verde da Spotify como identidade visual.
-- O verde de destaque será uma cor própria, definida na Etapa 1.
+- A cor de destaque é um jade próprio (#47D7A0 / #08784F), aprovado na Etapa 1.
 - Pode ser usada uma referência descritiva, como "Funciona com os arquivos exportados da sua conta Spotify".
 - Links `https://open.spotify.com/track/{id}` montados a partir da URI do próprio histórico são permitidos. São só URLs, e o app não faz nenhuma requisição a elas.
 
@@ -264,7 +265,7 @@ public/
 | Etapa                             | Entregas                                                                                                                                                                                                                      | Critério de pronto                                                                                |
 | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | **0. Base**                       | Vite + React + TS strict, Tailwind v4, ESLint (regras de fronteira) + Prettier, Vitest, Playwright, CI (GitHub Actions), `_headers`/CSP, estrutura e docs                                                                     | CI verde: lint, typecheck, unit, build, e2e                                                       |
-| **1. Identidade visual**          | Nome do produto, tokens claro/escuro, tipografia (pilha do sistema + Inter), grid, movimento, primitivos, shell responsivo, página de referência e uma tela de exemplo **com dados de demonstração explicitamente rotulados** | 🔒 **Aprovação visual obrigatória. Nenhuma tela funcional antes dela**                            |
+| **1. Identidade visual**          | Nome do produto, tokens claro/escuro, tipografia (pilha do sistema + Inter), grid, movimento, primitivos, shell responsivo, página de referência e uma tela de exemplo **com dados de demonstração explicitamente rotulados** | ✅ **Aprovada em 25/11/2026**                                                                     |
 | **2. Banco, importação e backup** | Worker SQLite, esquema v1, migrações, parsers Extended e básico, validação, deduplicação, progresso, relatório, FTS5, backup e restauração                                                                                    | Mais de 500 mil registros sem travar a interface; reimportação idempotente; ida e volta do backup |
 | **3. Estatísticas + Overview**    | `stats/`, `METRICS.md`, seletor de período, Overview                                                                                                                                                                          | Cada métrica com teste e explicação                                                               |
 | **4. Histórico e rankings**       | Busca, filtros, Top Tracks/Artists/Albums, lista virtualizada                                                                                                                                                                 | Desempenho com mais de 30 mil faixas                                                              |

@@ -1,4 +1,4 @@
-# Music Analytics (codinome)
+# Liner
 
 PWA local-first para analisar o histórico musical vitalício a partir dos arquivos
 **Extended Streaming History** exportados pelo próprio usuário.

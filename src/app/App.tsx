@@ -1,13 +1,56 @@
+import { useEffect, useState } from 'react';
+import { ReferencePage } from '../design/ReferencePage.tsx';
+import { SampleOverview } from '../design/SampleOverview.tsx';
+import { Shell } from './Shell.tsx';
+import { SegmentedControl } from '../ui/SegmentedControl.tsx';
+import { applyTheme, THEME_SEGMENTS, type ThemePreference } from './theme.ts';
+
 /**
- * Stage 0 placeholder shell.
- *
- * Intentionally minimal: no functional screens are built before the
- * Stage 1 visual approval (docs/PLANNING.md §13).
+ * Stage 1: only the visual reference (#referencia, default) and the sample screen (#exemplo).
+ * Functional screens are built after visual approval (docs/PLANNING.md §13).
  */
+
+type Route = 'reference' | 'sample';
+
+function readRoute(): Route {
+  return window.location.hash === '#exemplo' ? 'sample' : 'reference';
+}
+
 export function App() {
-  return (
-    <main className="grid min-h-dvh place-items-center px-4">
-      <h1 className="text-sm tracking-wide opacity-60">Music Analytics</h1>
-    </main>
-  );
+  const [route, setRoute] = useState<Route>(readRoute);
+  const [theme, setTheme] = useState<ThemePreference>('system');
+
+  useEffect(() => {
+    const onHashChange = () => {
+      setRoute(readRoute());
+      window.scrollTo({ top: 0 });
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => {
+      window.removeEventListener('hashchange', onHashChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
+  if (route === 'sample') {
+    return (
+      <Shell
+        footer={
+          <SegmentedControl
+            label="Tema"
+            segments={THEME_SEGMENTS}
+            value={theme}
+            onChange={setTheme}
+            fullWidth
+          />
+        }
+      >
+        <SampleOverview />
+      </Shell>
+    );
+  }
+  return <ReferencePage theme={theme} onThemeChange={setTheme} />;
 }
