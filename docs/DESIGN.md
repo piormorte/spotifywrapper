@@ -1,6 +1,6 @@
-# Design system — proposta da Etapa 1
+# Design system — Liner
 
-> Status: **aguardando aprovação visual.** Nenhuma tela funcional será construída antes dela.
+> Status: **aprovado em 25/11/2026** (Etapa 1). Toda tela nova segue este documento.
 
 Referência viva: `npm run dev` → `http://127.0.0.1:5173/` (referência) e `#exemplo` (tela de exemplo).
 Todos os nomes e números exibidos nessas páginas são **fictícios** (`src/design/demo-data.ts`).
@@ -57,8 +57,9 @@ O tema segue `prefers-color-scheme` e pode ser forçado com `data-theme="light|d
 
 São peças editoriais desenhadas diretamente em Canvas, com Inter, sem capas (`src/design/StorySpecimen.tsx`). O motor de exportação definitivo é construído na Etapa 7.
 
-## Pontos em aberto para aprovação
+## Decisões aprovadas (25/11/2026)
 
-1. **Nome:** Liner (proposta), Cadence ou Encarte.
-2. **Idioma da interface:** português com nomes de seções em português ("Visão geral", "Linha do tempo"). O nome "Export Studio" foi mantido como está.
-3. **Cor de destaque:** jade #47D7A0 / #08784F.
+1. **Nome:** Liner.
+2. **Idioma da interface:** português, com seções em português ("Visão geral", "Linha do tempo"). "Export Studio" e "Streams" ficam como estão.
+3. **Cor de destaque:** jade #47D7A0 (escuro) / #08784F (claro).
+4. **Direção visual:** a referência (`#referencia`) e a tela de exemplo (`#exemplo`) são a base aprovada.

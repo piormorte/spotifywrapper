@@ -7,8 +7,9 @@ Read `docs/PLANNING.md` before making changes. It is the source of truth for sco
 - **v1 is fully offline.** No OAuth, no Client ID, no Spotify Web API, no scraping, no external
   image lookup, no telemetry. CSP enforces `connect-src 'self'`; ESLint forbids `fetch`,
   `XMLHttpRequest`, `WebSocket` and `EventSource` in `src/`.
-- **Stage 1 visual approval is a mandatory gate.** Do not build functional screens in
-  `src/features/` until the owner has approved the visual direction.
+- **Visual direction is approved (Stage 1, 2026-11-25).** Every screen follows `docs/DESIGN.md`
+  and the tokens/primitives in `src/ui/`. Product name: Liner. UI language: Portuguese (pt-BR).
+  Accent: jade, once per screen. Significant visual departures need the owner's approval.
 - **No fabricated data.** Demo data is allowed only in tests/fixtures or explicitly labelled
   design references. Never show it as real statistics.
 - Play definitions are fixed constants in `src/lib/units.ts` (registered play: `ms_played > 0`;
