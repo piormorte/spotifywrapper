@@ -19,6 +19,15 @@ Read `docs/PLANNING.md` before making changes. It is the source of truth for sco
 - Do not use "Spotify" in the product name, icons or branding; do not use Spotify's logo or green.
 - Never commit real streaming-history exports.
 
+## Architecture notes
+
+- All database work runs in `src/workers/db.worker.ts` (one worker per page; it holds exclusive OPFS
+  handles). The UI talks to it only through `LibraryClient` (`src/db/client.ts`, ops in
+  `src/db/protocol.ts`).
+- `src/db/library.ts` (`Library`) is the service the worker exposes; it is framework-free and tested
+  in Node against in-memory SQLite (`src/db/test-utils.ts`).
+- Schema changes are new numbered migrations in `src/db/schema.ts`; never edit a released one.
+
 ## Workflow
 
 - `npm run check` must pass before committing; `npm run e2e` for UI-affecting changes.

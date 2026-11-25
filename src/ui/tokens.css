@@ -21,6 +21,9 @@
   --on-accent: #ffffff;
 
   --focus-ring: rgb(8 120 79 / 0.45);
+
+  /* Semantic: destructive actions and errors only. Never decorative. */
+  --critical: #d70015;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -37,6 +40,7 @@
     --accent-soft: rgb(71 215 160 / 0.12);
     --on-accent: #000000;
     --focus-ring: rgb(71 215 160 / 0.5);
+    --critical: #ff6961;
   }
 }
 
@@ -53,6 +57,7 @@
   --accent-soft: rgb(71 215 160 / 0.12);
   --on-accent: #000000;
   --focus-ring: rgb(71 215 160 / 0.5);
+  --critical: #ff6961;
 }
 
 :root[data-theme='light'] {
@@ -75,6 +80,7 @@
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
   --color-on-accent: var(--on-accent);
+  --color-critical: var(--critical);
   --color-transparent: transparent;
   --color-current: currentColor;
 }
