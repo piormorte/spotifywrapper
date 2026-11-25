@@ -10,6 +10,8 @@
   "preview_urls": false,
   // No Workers Logs: the app collects no telemetry (docs/SECURITY.md).
   "observability": { "enabled": false },
+  // Wrangler builds the app itself, so the dashboard needs no build command.
+  "build": { "command": "npm run build" },
   "assets": {
     "directory": "./dist",
     // Hash routing means every real path exists; unknown paths serve index.html.
