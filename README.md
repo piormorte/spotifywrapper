@@ -37,6 +37,14 @@ Conecte o repositório no painel do Cloudflare Pages com:
 Os headers de segurança (CSP com `connect-src 'self'`) são aplicados por `public/_headers`.
 Sem um `404.html`, o Pages serve `index.html` em rotas desconhecidas (modo SPA).
 
+## PWA
+
+- `vite-plugin-pwa` gera o manifest e o service worker (`generateSW`).
+- O service worker guarda **apenas os arquivos do app**: HTML, JS, CSS, WASM, fontes e ícones. Não há cache em tempo de execução, e os dados de escuta ficam no OPFS, nunca no Cache Storage.
+- Novas versões aparecem como um aviso "Atualizar". O app não recarrega sozinho.
+- Ícones: edite `public/icons/icon.svg` e `icon-maskable.svg` e rode `node scripts/generate-icons.mjs`.
+- `public/_headers` desativa cache longo para `sw.js` e o manifest e marca `/assets/*` como imutável.
+
 ## Privacidade
 
 Nunca faça commit dos seus arquivos de exportação. O `.gitignore` já bloqueia os nomes

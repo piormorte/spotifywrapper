@@ -6,6 +6,7 @@ import { Button } from '../../ui/Button.tsx';
 import { Section } from '../../ui/Section.tsx';
 import { SegmentedControl } from '../../ui/SegmentedControl.tsx';
 import { BackupSection } from './BackupSection.tsx';
+import { InstallSection } from './InstallSection.tsx';
 import { TimeZoneSection } from './TimeZoneSection.tsx';
 
 interface StorageEstimate {
@@ -155,6 +156,7 @@ export function SettingsPage({
         <BackupSection />
         <TimeZoneSection />
         <StorageSection />
+        <InstallSection />
         <Section title="Aparência">
           <SegmentedControl
             label="Tema"
