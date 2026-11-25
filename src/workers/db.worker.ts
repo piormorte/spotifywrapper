@@ -60,6 +60,8 @@ const handlers: Handlers = {
   summary: (library) => library.summary(),
   history: (library, query) => library.history(query),
   overview: (library, spec) => library.overview(spec),
+  ranking: (library, query) => library.ranking(query),
+  albumTracks: (library, { albumId, period }) => library.albumTracks(albumId, period),
   getTimeZone: (library) => library.timeZone(),
   setTimeZone: (library, timeZone) => {
     library.setTimeZone(timeZone);

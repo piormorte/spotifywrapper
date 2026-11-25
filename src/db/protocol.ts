@@ -3,6 +3,7 @@ import type { ImportProgress, ImportResult, RestoreMode, RestoreResult } from '.
 import type { HistoryPage, HistoryQuery, ImportLogEntry, LibrarySummary } from './queries.ts';
 import type { Overview } from '../stats/overview.ts';
 import type { PeriodSpec } from '../stats/period.ts';
+import type { AlbumTrack, Ranking, RankingQuery } from '../stats/rankings.ts';
 
 /** Messages between the UI thread and the database worker. */
 
@@ -19,6 +20,8 @@ export interface LibraryOps {
   summary: [undefined, LibrarySummary];
   history: [HistoryQuery, HistoryPage];
   overview: [PeriodSpec, Overview | null];
+  ranking: [RankingQuery, Ranking | null];
+  albumTracks: [{ albumId: number; period: PeriodSpec }, AlbumTrack[]];
   getTimeZone: [undefined, string];
   setTimeZone: [string, LibrarySummary];
   imports: [undefined, ImportLogEntry[]];

@@ -4,6 +4,8 @@ import {
   formatDecimal,
   formatDuration,
   formatInteger,
+  formatLocalDate,
+  formatLocalDateLong,
   formatPercent,
   plural,
 } from '../../lib/format.ts';
@@ -18,25 +20,10 @@ import { PeriodPicker } from './PeriodPicker.tsx';
 
 const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
-/** Dates computed from local day keys are already wall-clock: format them as UTC. */
-const dayFormat = new Intl.DateTimeFormat('pt-BR', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
-const longDayFormat = new Intl.DateTimeFormat('pt-BR', {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
-
 function formatDayKey(key: string, long = false): string {
   const ms = parseDayKey(key);
   if (ms === null) return key;
-  return (long ? longDayFormat : dayFormat).format(ms).replace(/ de /g, ' ');
+  return long ? formatLocalDateLong(ms) : formatLocalDate(ms);
 }
 
 function seriesLabel(key: string, granularity: Granularity): string {
@@ -234,9 +221,14 @@ function OverviewContent({ data }: { data: Overview }) {
   );
 }
 
-export function OverviewPage() {
+export function OverviewPage({
+  period: spec,
+  onPeriodChange: setSpec,
+}: {
+  period: PeriodSpec;
+  onPeriodChange: (spec: PeriodSpec) => void;
+}) {
   const { client, status, summary } = useLibrary();
-  const [spec, setSpec] = useState<PeriodSpec>({ preset: 'all' });
   const [data, setData] = useState<Overview | null>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'empty' | 'error'>('loading');
   const [updating, setUpdating] = useState(false);

@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ReferencePage } from '../design/ReferencePage.tsx';
 import { ImportPage } from '../features/import/ImportPage.tsx';
+import { HistoryPage } from '../features/history/HistoryPage.tsx';
 import { OverviewPage } from '../features/overview/OverviewPage.tsx';
+import { RankingsPage } from '../features/rankings/RankingsPage.tsx';
+import type { PeriodSpec } from '../stats/period.ts';
+import { MorePage } from './MorePage.tsx';
 import { SettingsPage } from '../features/settings/SettingsPage.tsx';
 import { useLibrary } from './library-context.ts';
 import { parseRoute, type Route } from './routes.ts';
@@ -14,6 +18,8 @@ export function App() {
   const { client, status } = useLibrary();
   const [route, setRoute] = useState<Route>(() => parseRoute(window.location.hash));
   const [theme, setThemeState] = useState<ThemePreference>('system');
+  // The period is shared by the overview and the rankings.
+  const [period, setPeriod] = useState<PeriodSpec>({ preset: 'all' });
 
   useEffect(() => {
     const onHashChange = () => {
@@ -52,26 +58,28 @@ export function App() {
     [client],
   );
 
-  switch (route) {
-    case 'referencia':
-      return <ReferencePage theme={theme} onThemeChange={setTheme} />;
-    case 'visao-geral':
-      return (
-        <Shell route={route}>
-          <OverviewPage />
-        </Shell>
-      );
-    case 'ajustes':
-      return (
-        <Shell route={route}>
-          <SettingsPage theme={theme} onThemeChange={setTheme} />
-        </Shell>
-      );
-    case 'importar':
-      return (
-        <Shell route={route}>
-          <ImportPage />
-        </Shell>
-      );
-  }
+  if (route === 'referencia') return <ReferencePage theme={theme} onThemeChange={setTheme} />;
+
+  const page = (() => {
+    switch (route) {
+      case 'visao-geral':
+        return <OverviewPage period={period} onPeriodChange={setPeriod} />;
+      case 'historico':
+        return <HistoryPage />;
+      case 'faixas':
+        return <RankingsPage kind="tracks" period={period} onPeriodChange={setPeriod} />;
+      case 'artistas':
+        return <RankingsPage kind="artists" period={period} onPeriodChange={setPeriod} />;
+      case 'albuns':
+        return <RankingsPage kind="albums" period={period} onPeriodChange={setPeriod} />;
+      case 'importar':
+        return <ImportPage />;
+      case 'ajustes':
+        return <SettingsPage theme={theme} onThemeChange={setTheme} />;
+      case 'mais':
+        return <MorePage route={route} />;
+    }
+  })();
+
+  return <Shell route={route}>{page}</Shell>;
 }

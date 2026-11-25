@@ -158,10 +158,10 @@ describe('search', () => {
     );
     const q = (text: string) => searchHistory(host.db, { text, kind: 'track' });
     expect(q('coracao').rows.map((r) => r.track)).toEqual(['Coração de Vidro']);
-    expect(q('HALDEN').total).toBe(3);
-    expect(q('nort fer').total).toBe(2);
+    expect(q('HALDEN').total).toBe(2); // the 0 s play is not listed
+    expect(q('nort fer').total).toBe(1);
     expect(q('"unbalanced (').total).toBe(0);
-    expect(q('').total).toBe(6);
+    expect(q('').total).toBe(5);
   });
 
   it('pages newest first with a stable cursor', async () => {
@@ -191,7 +191,7 @@ describe('search', () => {
       from: Date.UTC(2024, 0, 1),
       to: Date.UTC(2024, 0, 3),
     });
-    expect(page.total).toBe(3);
+    expect(page.total).toBe(2);
   });
 });
 

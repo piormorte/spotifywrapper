@@ -107,3 +107,42 @@ export function formatDuration(ms: number, locale = DEFAULT_LOCALE): string {
   if (minutes < 60) return `${formatInteger(minutes, locale)} min`;
   return `${formatHours(minutes / 60, locale)} h`;
 }
+
+/*
+ * Local wall-clock ms (see plays.local_end) are already in the user's time
+ * zone, encoded as UTC: always format them with timeZone 'UTC'.
+ */
+
+/** "5 jan. 2024" for a local wall-clock instant. */
+export function formatLocalDate(localMs: number, locale = DEFAULT_LOCALE): string {
+  return formatDateShort(localMs, 'UTC', locale);
+}
+
+/** "sexta-feira, 5 janeiro 2024" for a local wall-clock instant. */
+export function formatLocalDateLong(localMs: number, locale = DEFAULT_LOCALE): string {
+  return dateFormatter(locale, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
+    .format(localMs)
+    .replace(/ de /g, ' ');
+}
+
+/** "13:45" for a local wall-clock instant. */
+export function formatLocalTime(localMs: number, locale = DEFAULT_LOCALE): string {
+  return dateFormatter(locale, { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }).format(
+    localMs,
+  );
+}
+
+/** Playback length as a clock: "3:05", "1:02:09". */
+export function formatClock(ms: number): string {
+  const total = Math.round(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = String(total % 60).padStart(2, '0');
+  return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${s}` : `${m}:${s}`;
+}

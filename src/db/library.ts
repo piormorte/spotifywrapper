@@ -16,6 +16,13 @@ import {
 } from './queries.ts';
 import { isValidTimeZone, toLocalMs } from '../lib/time.ts';
 import { overview, type Overview } from '../stats/overview.ts';
+import {
+  albumTopTracks,
+  ranking,
+  type AlbumTrack,
+  type Ranking,
+  type RankingQuery,
+} from '../stats/rankings.ts';
 import type { PeriodSpec } from '../stats/period.ts';
 import { configureConnection, migrate } from './schema.ts';
 import { asText, asTextOrNull, exportDatabase, selectInt, type Database } from './sqlite.ts';
@@ -152,6 +159,14 @@ export class Library {
   /** Overview statistics for a period, or null when there is no music data. */
   overview(spec: PeriodSpec): Overview | null {
     return overview(this.db, spec);
+  }
+
+  ranking(query: RankingQuery): Ranking | null {
+    return ranking(this.db, query);
+  }
+
+  albumTracks(albumId: number, spec: PeriodSpec): AlbumTrack[] {
+    return albumTopTracks(this.db, albumId, spec);
   }
 
   history(query: HistoryQuery): HistoryPage {

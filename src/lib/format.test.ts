@@ -57,3 +57,16 @@ describe('formatDuration', () => {
     expect(formatDuration(27 * 3_600_000)).toBe('27 h');
   });
 });
+
+describe('local wall-clock formatting', () => {
+  it('formats local ms without shifting zones', async () => {
+    const { formatLocalDate, formatLocalDateLong, formatLocalTime, formatClock } =
+      await import('./format.ts');
+    const local = Date.UTC(2024, 0, 5, 23, 30);
+    expect(formatLocalDate(local)).toBe('5 jan. 2024');
+    expect(formatLocalDateLong(local)).toBe('sexta-feira, 5 janeiro 2024');
+    expect(formatLocalTime(local)).toBe('23:30');
+    expect(formatClock(185_000)).toBe('3:05');
+    expect(formatClock(3_729_000)).toBe('1:02:09');
+  });
+});

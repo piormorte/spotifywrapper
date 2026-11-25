@@ -3,81 +3,14 @@ import { formatDate } from '../lib/format.ts';
 import { useLibrary } from './library-context.ts';
 import type { Route } from './routes.ts';
 import { Wordmark } from './Wordmark.tsx';
+import { MOBILE, PRIMARY, SECONDARY } from './navigation.ts';
+import { NavItem } from './NavItem.tsx';
 
 /**
  * App shell: narrow text sidebar on wide screens, text tab bar on phones.
  * Destinations not built yet render as plain, non-interactive text — never
  * as controls that do nothing.
  */
-
-interface Destination {
-  readonly label: string;
-  readonly short: string;
-  readonly route?: Route;
-}
-
-const PRIMARY: readonly Destination[] = [
-  { label: 'Visão geral', short: 'Início', route: 'visao-geral' },
-  { label: 'Histórico', short: 'Histórico' },
-  { label: 'Faixas', short: 'Rankings' },
-  { label: 'Artistas', short: 'Artistas' },
-  { label: 'Álbuns', short: 'Álbuns' },
-  { label: 'Linha do tempo', short: 'Tempo' },
-  { label: 'Análises', short: 'Análises' },
-  { label: 'Perfil de escuta', short: 'Perfil' },
-];
-
-const SECONDARY: readonly Destination[] = [
-  { label: 'Export Studio', short: 'Exportar' },
-  { label: 'Importar dados', short: 'Importar', route: 'importar' },
-  { label: 'Ajustes', short: 'Ajustes', route: 'ajustes' },
-];
-
-const MOBILE: readonly Destination[] = [
-  { label: 'Visão geral', short: 'Início', route: 'visao-geral' },
-  { label: 'Faixas', short: 'Rankings' },
-  { label: 'Linha do tempo', short: 'Tempo' },
-  { label: 'Importar dados', short: 'Importar', route: 'importar' },
-  { label: 'Ajustes', short: 'Ajustes', route: 'ajustes' },
-];
-
-function NavItem({
-  item,
-  current,
-  compact = false,
-}: {
-  item: Destination;
-  current: Route;
-  compact?: boolean;
-}) {
-  const text = compact ? item.short : item.label;
-  const base = compact
-    ? 'block px-1 py-2 text-caption tracking-normal normal-case'
-    : 'block rounded-control px-3 py-1.5 text-callout';
-  if (!item.route) {
-    return (
-      <span className={`${base} cursor-default text-text-3`} title="Disponível em uma etapa futura">
-        {text}
-      </span>
-    );
-  }
-  const active = item.route === current;
-  return (
-    <a
-      href={`#${item.route}`}
-      aria-current={active ? 'page' : undefined}
-      className={`${base} transition-colors ${
-        active
-          ? compact
-            ? 'font-semibold text-text-1'
-            : 'bg-fill-1 font-medium text-text-1'
-          : 'text-text-2 hover:text-text-1'
-      }`}
-    >
-      {text}
-    </a>
-  );
-}
 
 function DataStatus() {
   const { summary } = useLibrary();

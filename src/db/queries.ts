@@ -80,6 +80,8 @@ export interface HistoryQuery {
 export interface HistoryRow {
   readonly id: number;
   readonly tsEnd: number;
+  /** End of playback in local wall-clock ms (chosen time zone). */
+  readonly localEnd: number;
   readonly msPlayed: number;
   readonly kind: ItemKind;
   readonly track: string;
@@ -100,8 +102,10 @@ const MAX_PAGE = 500;
 
 export function searchHistory(db: Database, query: HistoryQuery): HistoryPage {
   const match = query.text ? toFtsQuery(query.text) : null;
+  // Records with ms_played = 0 are kept for completeness but never shown.
   const filters = `
-    (:match IS NULL OR p.track_id IN (SELECT rowid FROM search_fts WHERE search_fts MATCH :match))
+    p.ms_played > 0
+    AND (:match IS NULL OR p.track_id IN (SELECT rowid FROM search_fts WHERE search_fts MATCH :match))
     AND (:kind IS NULL OR t.kind = :kind)
     AND (:from IS NULL OR p.ts_end >= :from)
     AND (:to IS NULL OR p.ts_end < :to)`;
@@ -113,7 +117,7 @@ export function searchHistory(db: Database, query: HistoryQuery): HistoryPage {
   };
 
   const rows = db.selectObjects(
-    `SELECT p.id, p.ts_end, p.ms_played, p.source, p.reason_end,
+    `SELECT p.id, p.ts_end, p.local_end, p.ms_played, p.source, p.reason_end,
             t.kind, t.name AS track, t.uri, a.name AS artist, al.name AS album
      FROM plays p
      JOIN tracks t ON t.id = p.track_id
@@ -142,6 +146,7 @@ export function searchHistory(db: Database, query: HistoryQuery): HistoryPage {
     rows: rows.map((r) => ({
       id: Number(r['id']),
       tsEnd: Number(r['ts_end']),
+      localEnd: Number(r['local_end']),
       msPlayed: Number(r['ms_played']),
       kind: r['kind'] as ItemKind,
       track: asText(r['track']),

@@ -52,6 +52,28 @@ média diária não é diluída por dias anteriores à conta.
 | Ao longo do tempo                    | Tempo ouvido por ano (períodos acima de 2 anos), por mês (acima de 62 dias) ou por dia; destaca o maior.     |
 | Hora do dia                          | Parcela do tempo ouvido em cada hora local (0–23).                                                           |
 
+## Rankings (Faixas, Artistas, Álbuns)
+
+| Coluna / opção                | Definição                                                                           |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| Streams / Reproduções / Tempo | Como na Visão geral, somados no período escolhido.                                  |
+| Ordenar por Streams           | Streams; empate → tempo ouvido → nome.                                              |
+| Ordenar por Reproduções       | Reproduções registradas; empate → tempo ouvido → nome.                              |
+| Ordenar por Tempo             | Tempo ouvido; empate → streams → nome.                                              |
+| Faixas (artistas, álbuns)     | Faixas diferentes com reprodução registrada no período.                             |
+| Primeira / Última             | Primeira e última reprodução registrada **em todo o histórico**, não só no período. |
+| Itens listados                | Todos os itens com pelo menos uma reprodução registrada no período.                 |
+| Faixas mais ouvidas do álbum  | As 5 faixas do álbum com mais streams no período (empate → tempo ouvido → nome).    |
+
+Faixas sem álbum na exportação aparecem em Faixas e Artistas, mas não em Álbuns. A soma dos
+streams e do tempo de todas as faixas é igual aos totais da Visão geral (coberto por teste).
+
+## Histórico
+
+Lista cada reprodução registrada (inclusive as de menos de 30 s), da mais recente para a mais
+antiga, na hora local. A busca procura faixa, artista e álbum por prefixo de palavra, sem
+diferenciar maiúsculas e acentos. Reproduções com 0 s não aparecem.
+
 ### Identidade de artistas e álbuns
 
 - O artista é o artista principal registrado na exportação. Participações não aparecem nos arquivos.

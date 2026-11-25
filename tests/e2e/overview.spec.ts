@@ -62,7 +62,10 @@ test('changing the time zone moves plays between days', async ({ page }) => {
   await page.locator('#time-zone').selectOption('Asia/Tokyo');
   await expect(page.getByText('Recalculando…')).toBeHidden();
   await page.goto('/#visao-geral');
-  // In Tokyo the same play falls on Jan 1; Dec 31 is now outside the data.
+  // The chosen period is kept. In Tokyo the play falls on Jan 1, so Dec 31 is empty...
+  await expect(hero(page)).toHaveText('0');
+  // ...and the data now starts on Jan 1.
+  await page.getByRole('radiogroup', { name: 'Período' }).getByRole('radio').first().click();
   await expect(page.getByText(/1 jan\. 2024 –/)).toBeVisible();
 });
 

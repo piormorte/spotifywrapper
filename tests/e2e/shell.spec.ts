@@ -31,7 +31,17 @@ test('renders without console errors, CSP violations or external requests', asyn
   expect(problems).toEqual([]);
 });
 
-for (const path of ['/', '/#importar', '/#ajustes', '/#referencia']) {
+for (const path of [
+  '/',
+  '/#historico',
+  '/#faixas',
+  '/#artistas',
+  '/#albuns',
+  '/#importar',
+  '/#ajustes',
+  '/#mais',
+  '/#referencia',
+]) {
   test(`has no horizontal overflow at the current viewport: ${path}`, async ({ page }) => {
     await page.goto(path);
     const overflow = await page.evaluate(
