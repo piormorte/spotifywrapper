@@ -112,7 +112,7 @@ export function ReferencePage({
             value={theme}
             onChange={onThemeChange}
           />
-          <a href="#/exemplo" className="text-callout font-medium text-accent hover:underline">
+          <a href="#exemplo" className="text-callout font-medium text-accent hover:underline">
             Ver tela de exemplo
           </a>
         </div>

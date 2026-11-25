@@ -2,7 +2,7 @@
 
 > Status: **aguardando aprovação visual.** Nenhuma tela funcional será construída antes dela.
 
-Referência viva: `npm run dev` → `http://127.0.0.1:5173/#/` (referência) e `#/exemplo` (tela de exemplo).
+Referência viva: `npm run dev` → `http://127.0.0.1:5173/` (referência) e `#exemplo` (tela de exemplo).
 Todos os nomes e números exibidos nessas páginas são **fictícios** (`src/design/demo-data.ts`).
 
 ## Princípios

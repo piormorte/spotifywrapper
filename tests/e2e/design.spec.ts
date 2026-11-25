@@ -2,13 +2,13 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Stage 1 sample screen', () => {
   test('labels its data as fictional', async ({ page }) => {
-    await page.goto('/#/exemplo');
+    await page.goto('/#exemplo');
     await expect(page.getByRole('heading', { level: 1, name: 'Visão geral' })).toBeVisible();
     await expect(page.getByRole('note')).toContainText('fictícios');
   });
 
   test('period control switches the figures and supports arrow keys', async ({ page }) => {
-    await page.goto('/#/exemplo');
+    await page.goto('/#exemplo');
     const periods = page.getByRole('radiogroup', { name: 'Período' });
     const hero = page.locator('dd .text-hero');
     const allTime = await hero.textContent();
@@ -23,10 +23,10 @@ test.describe('Stage 1 sample screen', () => {
   });
 
   test('non-built destinations are plain text, never dead buttons or links', async ({ page }) => {
-    await page.goto('/#/exemplo');
+    await page.goto('/#exemplo');
     const nav = page.getByRole('navigation', { name: 'Principal' }).first();
     for (const link of await nav.getByRole('link').all()) {
-      await expect(link).toHaveAttribute('href', /#\//);
+      await expect(link).toHaveAttribute('href', /^#[a-z]+$/);
     }
     await expect(nav.getByRole('button')).toHaveCount(0);
   });

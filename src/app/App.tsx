@@ -6,14 +6,14 @@ import { SegmentedControl } from '../ui/SegmentedControl.tsx';
 import { applyTheme, THEME_SEGMENTS, type ThemePreference } from './theme.ts';
 
 /**
- * Stage 1: only the visual reference (#/) and the sample screen (#/exemplo).
+ * Stage 1: only the visual reference (#referencia, default) and the sample screen (#exemplo).
  * Functional screens are built after visual approval (docs/PLANNING.md §13).
  */
 
 type Route = 'reference' | 'sample';
 
 function readRoute(): Route {
-  return window.location.hash === '#/exemplo' ? 'sample' : 'reference';
+  return window.location.hash === '#exemplo' ? 'sample' : 'reference';
 }
 
 export function App() {

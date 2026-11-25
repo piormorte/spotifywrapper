@@ -16,7 +16,7 @@ interface Destination {
 }
 
 const PRIMARY: readonly Destination[] = [
-  { label: 'Visão geral', short: 'Início', href: '#/exemplo' },
+  { label: 'Visão geral', short: 'Início', href: '#exemplo' },
   { label: 'Histórico', short: 'Histórico' },
   { label: 'Faixas', short: 'Rankings' },
   { label: 'Artistas', short: 'Artistas' },
@@ -81,7 +81,7 @@ export function Shell({ children, footer }: { children: ReactNode; footer: React
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[232px_1fr]">
       <aside className="hairline sticky top-0 hidden h-dvh flex-col border-r px-4 py-6 lg:flex">
-        <a href="#/" className="px-3" aria-label="Liner — referência visual">
+        <a href="#referencia" className="px-3" aria-label="Liner — referência visual">
           <Wordmark />
         </a>
         <nav aria-label="Principal" className="mt-10 space-y-0.5">
@@ -98,7 +98,7 @@ export function Shell({ children, footer }: { children: ReactNode; footer: React
       </aside>
 
       <header className="hairline sticky top-0 z-20 flex items-center justify-between border-b bg-bg px-4 py-3 lg:hidden">
-        <a href="#/" aria-label="Liner — referência visual">
+        <a href="#referencia" aria-label="Liner — referência visual">
           <Wordmark className="text-callout" />
         </a>
       </header>
