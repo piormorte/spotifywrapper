@@ -12,7 +12,7 @@
   --fill-2: #d2d2d7;
   --separator: rgb(0 0 0 / 0.1);
   --text-1: #1d1d1f;
-  --text-2: #6e6e73;
+  --text-2: #636368;
   --text-3: #737378;
 
   /* Accent — a jade of our own, deliberately distinct from Spotify's green */
@@ -23,7 +23,7 @@
   --focus-ring: rgb(8 120 79 / 0.45);
 
   /* Semantic: destructive actions and errors only. Never decorative. */
-  --critical: #d70015;
+  --critical: #b80012;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -26,6 +26,20 @@ function DataStatus() {
 export function Shell({ route, children }: { route: Route; children: ReactNode }) {
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[232px_1fr]">
+      <button
+        type="button"
+        onClick={() => {
+          const target =
+            document.querySelector<HTMLElement>('main h1') ?? document.getElementById('conteudo');
+          if (target) {
+            target.tabIndex = -1;
+            target.focus();
+          }
+        }}
+        className="sr-only z-50 rounded-control bg-text-1 px-4 py-2 text-callout text-bg focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+      >
+        Pular para o conteúdo
+      </button>
       <aside className="hairline sticky top-0 hidden h-dvh flex-col border-r px-4 py-6 lg:flex">
         <a href="#visao-geral" className="px-3" aria-label="Liner">
           <Wordmark />
@@ -51,7 +65,9 @@ export function Shell({ route, children }: { route: Route; children: ReactNode }
         </a>
       </header>
 
-      <div className="min-w-0 pb-24 lg:pb-0">{children}</div>
+      <div id="conteudo" className="min-w-0 pb-24 lg:pb-0">
+        {children}
+      </div>
 
       <nav
         aria-label="Principal"

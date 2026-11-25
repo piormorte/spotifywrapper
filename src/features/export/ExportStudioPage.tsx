@@ -17,6 +17,7 @@ import {
 } from '../../export/types.ts';
 import type { PeriodSpec } from '../../stats/period.ts';
 import { Button } from '../../ui/Button.tsx';
+import { OptionList } from '../../ui/OptionList.tsx';
 import { SegmentedControl } from '../../ui/SegmentedControl.tsx';
 import { PeriodPicker } from '../overview/PeriodPicker.tsx';
 import { monthLabel, monthSpec, monthsBetween, periodLabel, yearSpec } from './period-label.ts';
@@ -288,30 +289,13 @@ export function ExportStudioPage({
             }}
           >
             <Field label="Modelo">
-              <div
-                role="radiogroup"
-                aria-label="Modelo"
+              <OptionList
+                label="Modelo"
+                options={TEMPLATES.map((t) => ({ value: t, label: TEMPLATE_TITLES[t] }))}
+                value={template}
+                onChange={setTemplate}
                 className="grid grid-cols-2 gap-1 lg:grid-cols-1"
-              >
-                {TEMPLATES.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    role="radio"
-                    aria-checked={template === t}
-                    onClick={() => {
-                      setTemplate(t);
-                    }}
-                    className={`rounded-control px-3 py-1.5 text-left text-callout transition-colors ${
-                      template === t
-                        ? 'bg-fill-1 font-medium text-text-1'
-                        : 'text-text-2 hover:text-text-1'
-                    }`}
-                  >
-                    {TEMPLATE_TITLES[t]}
-                  </button>
-                ))}
-              </div>
+              />
             </Field>
 
             <Field label="Período">
@@ -383,26 +367,13 @@ export function ExportStudioPage({
             )}
 
             <Field label="Formato">
-              <div role="radiogroup" aria-label="Formato" className="grid grid-cols-3 gap-1">
-                {FORMAT_SEGMENTS.map((f) => (
-                  <button
-                    key={f.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={format === f.value}
-                    onClick={() => {
-                      setFormat(f.value);
-                    }}
-                    className={`rounded-control px-2.5 py-1.5 text-callout transition-colors ${
-                      format === f.value
-                        ? 'bg-fill-1 font-medium text-text-1'
-                        : 'text-text-2 hover:text-text-1'
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
+              <OptionList
+                label="Formato"
+                options={FORMAT_SEGMENTS}
+                value={format}
+                onChange={setFormat}
+                className="grid grid-cols-3 gap-1"
+              />
               {format === 'custom' && (
                 <div className="mt-3 flex items-center gap-2 text-footnote text-text-2">
                   <label htmlFor="export-width" className="sr-only">

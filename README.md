@@ -6,6 +6,9 @@ PWA local-first para analisar o histórico musical vitalício a partir dos arqui
 - Todo o processamento acontece no dispositivo. Nenhum dado sai do navegador.
 - A v1 não faz nenhuma requisição externa: sem OAuth, sem Spotify Web API, sem busca de imagens.
 - Planejamento, decisões e base de conformidade: [`docs/PLANNING.md`](docs/PLANNING.md).
+- Definições de todas as métricas: [`docs/METRICS.md`](docs/METRICS.md).
+- Design system e acessibilidade: [`docs/DESIGN.md`](docs/DESIGN.md).
+- Segurança e privacidade: [`docs/SECURITY.md`](docs/SECURITY.md).
 
 > Projeto independente, sem afiliação com a Spotify.
 

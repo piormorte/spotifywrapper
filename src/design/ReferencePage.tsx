@@ -16,7 +16,7 @@ const COLORS = [
   ['fill-1', 'Preenchimento 1 · controles', '#E8E8ED', '#1C1C1E'],
   ['fill-2', 'Preenchimento 2 · séries', '#D2D2D7', '#2C2C2E'],
   ['text-1', 'Texto primário', '#1D1D1F', '#F5F5F7'],
-  ['text-2', 'Texto secundário', '#6E6E73', '#A1A1A6'],
+  ['text-2', 'Texto secundário', '#636368', '#A1A1A6'],
   ['text-3', 'Texto terciário', '#737378', '#7C7C82'],
   ['accent', 'Destaque · um por tela', '#08784F', '#47D7A0'],
 ] as const;

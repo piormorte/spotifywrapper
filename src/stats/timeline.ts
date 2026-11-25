@@ -168,20 +168,24 @@ export function compare(db: Database, a: PeriodSpec, b: PeriodSpec): Comparison 
   const left = overview(db, a);
   const right = overview(db, b);
   if (!left || !right) return null;
-  const artistSet = (p: ResolvedPeriod) =>
-    `SELECT DISTINCT t.artist_id FROM plays p JOIN tracks t ON t.id = p.track_id
-     WHERE t.kind = 'track' AND p.ms_played > 0
-       AND p.local_end >= ${String(p.from)} AND p.local_end < ${String(p.to)}`;
-  const count = (sql: string) => Number(db.selectValue(`SELECT COUNT(*) FROM (${sql})`) ?? 0);
-  const setA = artistSet(left.period);
-  const setB = artistSet(right.period);
+  // Every value is a bound parameter: (a.from, a.to) then (b.from, b.to).
+  const artistSet = `SELECT DISTINCT t.artist_id FROM plays p JOIN tracks t ON t.id = p.track_id
+     WHERE t.kind = 'track' AND p.ms_played > 0 AND p.local_end >= ? AND p.local_end < ?`;
+  const bind = [left.period.from, left.period.to, right.period.from, right.period.to];
+  const count = (op: 'INTERSECT' | 'EXCEPT', swap: boolean) =>
+    Number(
+      db.selectValue(
+        `SELECT COUNT(*) FROM (${artistSet} ${op} ${artistSet})`,
+        swap ? [bind[2], bind[3], bind[0], bind[1]] : bind,
+      ) ?? 0,
+    );
   return {
     a: left,
     b: right,
     artists: {
-      shared: count(`${setA} INTERSECT ${setB}`),
-      onlyA: count(`${setA} EXCEPT ${setB}`),
-      onlyB: count(`${setB} EXCEPT ${setA}`),
+      shared: count('INTERSECT', false),
+      onlyA: count('EXCEPT', false),
+      onlyB: count('EXCEPT', true),
     },
   };
 }
