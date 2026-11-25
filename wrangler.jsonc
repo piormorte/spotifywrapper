@@ -6,8 +6,8 @@
   "name": "spotifywrapper",
   "compatibility_date": "2025-09-01",
   "workers_dev": true,
-  // Per-version preview URLs are not needed for a single-user app.
-  "preview_urls": false,
+  // Pull requests get a preview link (wrangler versions upload) to review changes.
+  "preview_urls": true,
   // No Workers Logs: the app collects no telemetry (docs/SECURITY.md).
   "observability": { "enabled": false },
   // Wrangler builds the app itself, so the dashboard needs no build command.
