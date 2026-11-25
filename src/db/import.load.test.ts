@@ -61,6 +61,20 @@ describe.skipIf(!process.env['LOAD'])('load', () => {
     expect(page.rows.length).toBeGreaterThan(0);
 
     t0 = performance.now();
+    const all = library.overview({ preset: 'all' });
+    const overviewMs = performance.now() - t0;
+    expect(all?.registeredPlays).toBeGreaterThan(0);
+
+    t0 = performance.now();
+    const month = library.overview({ preset: '30d' });
+    const overview30dMs = performance.now() - t0;
+    expect(month).not.toBeNull();
+
+    t0 = performance.now();
+    library.setTimeZone('Asia/Tokyo');
+    const timeZoneMs = performance.now() - t0;
+
+    t0 = performance.now();
     const { bytes } = await library.backup();
     const backupMs = performance.now() - t0;
 
@@ -78,6 +92,9 @@ describe.skipIf(!process.env['LOAD'])('load', () => {
         importS: +(importMs / 1000).toFixed(1),
         reimportS: +(reimportMs / 1000).toFixed(1),
         searchMs: +searchMs.toFixed(0),
+        overviewAllMs: +overviewMs.toFixed(0),
+        overview30dMs: +overview30dMs.toFixed(0),
+        timeZoneS: +(timeZoneMs / 1000).toFixed(1),
         backupS: +(backupMs / 1000).toFixed(1),
         backupMB: +(bytes.byteLength / 1e6).toFixed(1),
         restoreS: +(restoreMs / 1000).toFixed(1),

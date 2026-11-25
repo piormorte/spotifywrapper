@@ -1,6 +1,8 @@
 import type { BackupInfo } from './backup.ts';
 import type { ImportProgress, ImportResult, RestoreMode, RestoreResult } from './library.ts';
 import type { HistoryPage, HistoryQuery, ImportLogEntry, LibrarySummary } from './queries.ts';
+import type { Overview } from '../stats/overview.ts';
+import type { PeriodSpec } from '../stats/period.ts';
 
 /** Messages between the UI thread and the database worker. */
 
@@ -16,6 +18,9 @@ export interface LibraryOps {
   init: [undefined, StorageStatus];
   summary: [undefined, LibrarySummary];
   history: [HistoryQuery, HistoryPage];
+  overview: [PeriodSpec, Overview | null];
+  getTimeZone: [undefined, string];
+  setTimeZone: [string, LibrarySummary];
   imports: [undefined, ImportLogEntry[]];
   importFiles: [File[], ImportResult];
   backup: [undefined, { bytes: Uint8Array; info: BackupInfo }];

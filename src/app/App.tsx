@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ReferencePage } from '../design/ReferencePage.tsx';
-import { SampleOverview } from '../design/SampleOverview.tsx';
 import { ImportPage } from '../features/import/ImportPage.tsx';
+import { OverviewPage } from '../features/overview/OverviewPage.tsx';
 import { SettingsPage } from '../features/settings/SettingsPage.tsx';
 import { useLibrary } from './library-context.ts';
 import { parseRoute, type Route } from './routes.ts';
@@ -55,10 +55,10 @@ export function App() {
   switch (route) {
     case 'referencia':
       return <ReferencePage theme={theme} onThemeChange={setTheme} />;
-    case 'exemplo':
+    case 'visao-geral':
       return (
         <Shell route={route}>
-          <SampleOverview />
+          <OverviewPage />
         </Shell>
       );
     case 'ajustes':

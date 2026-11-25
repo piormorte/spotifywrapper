@@ -25,10 +25,15 @@ export class Ingestor {
   private readonly trackIds = new Map<string, number>();
 
   private readonly db: Database;
+  private readonly toLocal: (utcMs: number) => number;
 
-  /** Loads the current catalog keys once, so lookups of known items never hit SQLite. */
-  constructor(db: Database) {
+  /**
+   * Loads the current catalog keys once, so lookups of known items never hit
+   * SQLite. `toLocal` converts end times to local wall-clock ms (local_end).
+   */
+  constructor(db: Database, toLocal: (utcMs: number) => number) {
     this.db = db;
+    this.toLocal = toLocal;
     for (const [key, id] of db.selectArrays('SELECT artist_key, id FROM artists')) {
       this.artistIds.set(asText(key), Number(id));
     }
@@ -142,19 +147,20 @@ export class Ingestor {
         flag(p.skipped),
         flag(p.offline),
         flag(p.incognito),
+        this.toLocal(p.tsEnd),
       ]);
       const json = JSON.stringify(rows);
       const columns = `value ->> 0 AS ts_end, value ->> 1 AS ms_played, value ->> 2 AS track_id,
         value ->> 3 AS source, value ->> 4 AS reason_start, value ->> 5 AS reason_end,
         value ->> 6 AS shuffle, value ->> 7 AS skipped, value ->> 8 AS offline,
-        value ->> 9 AS incognito`;
+        value ->> 9 AS incognito, value ->> 10 AS local_end`;
 
       db.exec({
         sql: `INSERT OR IGNORE INTO plays
                 (ts_end, ms_played, track_id, source, reason_start, reason_end,
-                 shuffle, skipped, offline, incognito, import_id)
+                 shuffle, skipped, offline, incognito, local_end, import_id)
               SELECT ts_end, ms_played, track_id, source, reason_start, reason_end,
-                     shuffle, skipped, offline, incognito, ?
+                     shuffle, skipped, offline, incognito, local_end, ?
               FROM (SELECT ${columns} FROM json_each(?))`,
         bind: [importId, json],
       });

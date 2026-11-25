@@ -14,6 +14,9 @@ import {
   type ImportLogEntry,
   type LibrarySummary,
 } from './queries.ts';
+import { isValidTimeZone, toLocalMs } from '../lib/time.ts';
+import { overview, type Overview } from '../stats/overview.ts';
+import type { PeriodSpec } from '../stats/period.ts';
 import { configureConnection, migrate } from './schema.ts';
 import { asText, asTextOrNull, exportDatabase, selectInt, type Database } from './sqlite.ts';
 
@@ -85,11 +88,53 @@ export class Library {
   private readonly host: DatabaseHost;
   private readonly appVersion: string;
 
-  constructor(host: DatabaseHost, appVersion: string) {
+  private readonly defaultTimeZone: string;
+  private tz: string;
+
+  /**
+   * @param defaultTimeZone Used until the user picks one (normally the device zone).
+   */
+  constructor(host: DatabaseHost, appVersion: string, defaultTimeZone = 'UTC') {
     this.host = host;
     this.appVersion = appVersion;
-    configureConnection(host.db);
-    migrate(host.db);
+    this.defaultTimeZone = isValidTimeZone(defaultTimeZone) ? defaultTimeZone : 'UTC';
+    this.tz = this.defaultTimeZone;
+    this.openConnection();
+  }
+
+  /** Per-connection setup: pragmas, migrations, time zone and local times. */
+  private openConnection(): void {
+    configureConnection(this.db);
+    migrate(this.db);
+    const stored = getSetting(this.db, 'timeZone');
+    this.tz = stored && isValidTimeZone(stored) ? stored : this.defaultTimeZone;
+    this.db.createFunction('liner_local_ms', (_ctx, ts) => toLocalMs(Number(ts), this.tz), {
+      deterministic: false,
+    });
+    this.fillLocalTimes(false);
+  }
+
+  /** Computes local_end for rows missing it, or for every row after a zone change. */
+  private fillLocalTimes(all: boolean): void {
+    this.db.exec(
+      `UPDATE plays SET local_end = liner_local_ms(ts_end)${all ? '' : ' WHERE local_end IS NULL'}`,
+    );
+  }
+
+  private toLocal = (utcMs: number): number => toLocalMs(utcMs, this.tz);
+
+  timeZone(): string {
+    return this.tz;
+  }
+
+  /** Changes the time zone used for local-time statistics and recomputes local times. */
+  setTimeZone(timeZone: string): void {
+    if (!isValidTimeZone(timeZone)) throw new RangeError(`Unknown time zone: ${timeZone}`);
+    setSetting(this.db, 'timeZone', timeZone);
+    this.tz = timeZone;
+    this.db.transaction(() => {
+      this.fillLocalTimes(true);
+    });
   }
 
   private get db(): Database {
@@ -102,6 +147,11 @@ export class Library {
 
   summary(): LibrarySummary {
     return librarySummary(this.db);
+  }
+
+  /** Overview statistics for a period, or null when there is no music data. */
+  overview(spec: PeriodSpec): Overview | null {
+    return overview(this.db, spec);
   }
 
   history(query: HistoryQuery): HistoryPage {
@@ -155,7 +205,7 @@ export class Library {
     now = Date.now(),
   ): Promise<ImportResult> {
     const files: FileOutcome[] = [];
-    const ingestor = new Ingestor(this.db);
+    const ingestor = new Ingestor(this.db, this.toLocal);
 
     for (const [fileIndex, input] of inputs.entries()) {
       const base = { fileIndex, fileCount: inputs.length, fileName: input.name };
@@ -247,7 +297,10 @@ export class Library {
       if (mode === 'replace') {
         const replacement = exportDatabase(this.host.sqlite3, incoming);
         await this.host.replace(replacement);
-        configureConnection(this.db);
+        this.openConnection();
+        this.db.transaction(() => {
+          this.fillLocalTimes(true);
+        });
         this.finalize();
         return { mode, info, inserted: info.counts.plays, duplicates: 0, summary: this.summary() };
       }
@@ -264,7 +317,7 @@ export class Library {
       });
       const importId = selectInt(this.db, 'SELECT last_insert_rowid()');
       const { inserted, duplicates } = this.writePlays(
-        new Ingestor(this.db),
+        new Ingestor(this.db, this.toLocal),
         plays,
         importId,
         () => undefined,
@@ -288,6 +341,7 @@ export class Library {
                DELETE FROM imports; DELETE FROM settings;
                INSERT INTO search_fts (search_fts) VALUES ('delete-all');`);
     });
+    this.tz = this.defaultTimeZone;
     return this.summary();
   }
 }

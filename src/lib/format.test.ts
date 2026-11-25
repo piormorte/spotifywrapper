@@ -48,3 +48,12 @@ describe('short forms', () => {
     expect(formatHours(803.4)).toBe('803');
   });
 });
+
+describe('formatDuration', () => {
+  it('switches from minutes to hours at one hour', async () => {
+    const { formatDuration } = await import('./format.ts');
+    expect(formatDuration(45 * 60_000)).toBe('45 min');
+    expect(formatDuration(90 * 60_000)).toBe('1,5 h');
+    expect(formatDuration(27 * 3_600_000)).toBe('27 h');
+  });
+});

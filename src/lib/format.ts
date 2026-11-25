@@ -100,3 +100,10 @@ export function plural(count: number, one: string, many: string, locale = DEFAUL
 export function formatHours(hours: number, locale = DEFAULT_LOCALE): string {
   return hours < 10 ? formatDecimal(hours, 1, locale) : formatInteger(hours, locale);
 }
+
+/** Compact listening time: "45 min" below one hour, "27 h" from one hour. */
+export function formatDuration(ms: number, locale = DEFAULT_LOCALE): string {
+  const minutes = ms / 60_000;
+  if (minutes < 60) return `${formatInteger(minutes, locale)} min`;
+  return `${formatHours(minutes / 60, locale)} h`;
+}

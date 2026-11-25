@@ -10,6 +10,7 @@ import type {
   ResponseMessage,
   StorageStatus,
 } from '../db/protocol.ts';
+import { deviceTimeZone } from '../lib/time.ts';
 import { openOpfsHost } from './opfs-host.ts';
 
 /**
@@ -37,7 +38,7 @@ async function start(): Promise<{ library: Library; storage: StorageStatus }> {
       storage = { persistent: false, reason: 'unavailable' };
     }
   }
-  return { library: new Library(host, __APP_VERSION__), storage };
+  return { library: new Library(host, __APP_VERSION__, deviceTimeZone()), storage };
 }
 
 const ready = start();
@@ -58,6 +59,12 @@ const handlers: Handlers = {
   init: async () => (await ready).storage,
   summary: (library) => library.summary(),
   history: (library, query) => library.history(query),
+  overview: (library, spec) => library.overview(spec),
+  getTimeZone: (library) => library.timeZone(),
+  setTimeZone: (library, timeZone) => {
+    library.setTimeZone(timeZone);
+    return library.summary();
+  },
   imports: (library) => library.imports(),
   importFiles: (library, files, id) => {
     const inputs = files.map((file) => ({

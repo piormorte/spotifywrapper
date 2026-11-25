@@ -92,6 +92,14 @@ export function zonedTimeToUtc(local: LocalDateTime, timeZone: string): number {
   return wall - offsetBefore;
 }
 
+/**
+ * Wall-clock time of instant `utcMs` in `timeZone`, encoded as UTC epoch ms
+ * ("local ms"). Used for every local-time statistic.
+ */
+export function toLocalMs(utcMs: number, timeZone: string): number {
+  return utcMs + timeZoneOffsetMs(utcMs, timeZone);
+}
+
 /** Calendar day key ("YYYY-MM-DD") of instant `utcMs` in `timeZone`. */
 export function localDayKey(utcMs: number, timeZone: string): string {
   const local = new Date(utcMs + timeZoneOffsetMs(utcMs, timeZone));

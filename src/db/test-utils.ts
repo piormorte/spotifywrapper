@@ -13,9 +13,11 @@ export function loadSqlite(): Promise<Sqlite3Static> {
   return sqlite;
 }
 
-export async function newLibrary(): Promise<{ library: Library; host: MemoryHost }> {
+export async function newLibrary(
+  timeZone = 'UTC',
+): Promise<{ library: Library; host: MemoryHost }> {
   const host = new MemoryHost(await loadSqlite());
-  return { library: new Library(host, 'test'), host };
+  return { library: new Library(host, 'test', timeZone), host };
 }
 
 export function bytesFile(name: string, bytes: Uint8Array): ImportInput {

@@ -157,12 +157,12 @@ plays(id, ts_end, ms_played, track_id, source, import_id, reason_start,
       reason_end, shuffle, skipped, offline, incognito)
   UNIQUE(ts_end, track_id, ms_played); INDEX(track_id, ts_end)
 imports(id, file_name, file_sha256, kind, created_at, inserted, duplicates, report_json)
-settings(key, value)                 -- tema, data do último backup, (fuso na Etapa 3)
+settings(key, value)                 -- tema, fuso horário, data do último backup
 search_fts USING fts5(track, artist, album)  -- contentless, sem acentos
 PRAGMA application_id = 'LINR', PRAGMA user_version = 1
 ```
 
-Tabelas auxiliares para estatísticas (por dia local, por exemplo) serão definidas na Etapa 3, junto com as métricas que as usam.
+**v2 (Etapa 3):** `plays.local_end` — fim da reprodução em hora local (fuso escolhido), indexado. Todas as estatísticas locais usam essa coluna. Não foi necessária uma tabela auxiliar por dia: as consultas agregam por faixa e por hora em duas passagens (ver `docs/METRICS.md`).
 
 ---
 
@@ -275,7 +275,7 @@ public/
 | **0. Base**                          | Vite + React + TS strict, Tailwind v4, ESLint (regras de fronteira) + Prettier, Vitest, Playwright, CI (GitHub Actions), `_headers`/CSP, estrutura e docs                                                                     | CI verde: lint, typecheck, unit, build, e2e                                                       |
 | **1. Identidade visual**             | Nome do produto, tokens claro/escuro, tipografia (pilha do sistema + Inter), grid, movimento, primitivos, shell responsivo, página de referência e uma tela de exemplo **com dados de demonstração explicitamente rotulados** | ✅ **Aprovada em 25/11/2026**                                                                     |
 | **2. Banco, importação e backup** ✅ | Worker SQLite, esquema v1, migrações, parsers Extended e básico, validação, deduplicação, progresso, relatório, FTS5, backup e restauração                                                                                    | Mais de 500 mil registros sem travar a interface; reimportação idempotente; ida e volta do backup |
-| **3. Estatísticas + Overview**       | `stats/`, `METRICS.md`, seletor de período, Overview                                                                                                                                                                          | Cada métrica com teste e explicação                                                               |
+| **3. Estatísticas + Overview** ✅    | `stats/`, `METRICS.md`, seletor de período, Overview                                                                                                                                                                          | Cada métrica com teste e explicação                                                               |
 | **4. Histórico e rankings**          | Busca, filtros, Top Tracks/Artists/Albums, lista virtualizada                                                                                                                                                                 | Desempenho com mais de 30 mil faixas                                                              |
 | **5. Timeline e comparações**        | Ano, mês, semana, dia e hora, mapa de calor, período A×B                                                                                                                                                                      | —                                                                                                 |
 | **6. Advanced e Personality**        | Métricas e textos de observação                                                                                                                                                                                               | Testes com dados sintéticos                                                                       |

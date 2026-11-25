@@ -17,7 +17,7 @@ interface Destination {
 }
 
 const PRIMARY: readonly Destination[] = [
-  { label: 'Visão geral', short: 'Início' },
+  { label: 'Visão geral', short: 'Início', route: 'visao-geral' },
   { label: 'Histórico', short: 'Histórico' },
   { label: 'Faixas', short: 'Rankings' },
   { label: 'Artistas', short: 'Artistas' },
@@ -34,7 +34,7 @@ const SECONDARY: readonly Destination[] = [
 ];
 
 const MOBILE: readonly Destination[] = [
-  { label: 'Visão geral', short: 'Início' },
+  { label: 'Visão geral', short: 'Início', route: 'visao-geral' },
   { label: 'Faixas', short: 'Rankings' },
   { label: 'Linha do tempo', short: 'Tempo' },
   { label: 'Importar dados', short: 'Importar', route: 'importar' },
@@ -94,7 +94,7 @@ export function Shell({ route, children }: { route: Route; children: ReactNode }
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[232px_1fr]">
       <aside className="hairline sticky top-0 hidden h-dvh flex-col border-r px-4 py-6 lg:flex">
-        <a href="#importar" className="px-3" aria-label="Liner">
+        <a href="#visao-geral" className="px-3" aria-label="Liner">
           <Wordmark />
         </a>
         <nav aria-label="Principal" className="mt-10 space-y-0.5">
@@ -113,7 +113,7 @@ export function Shell({ route, children }: { route: Route; children: ReactNode }
       </aside>
 
       <header className="hairline sticky top-0 z-20 flex items-center justify-between border-b bg-bg px-4 py-3 lg:hidden">
-        <a href="#importar" aria-label="Liner">
+        <a href="#visao-geral" aria-label="Liner">
           <Wordmark className="text-callout" />
         </a>
       </header>

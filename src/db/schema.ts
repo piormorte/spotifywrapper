@@ -74,6 +74,11 @@ const MIGRATIONS: readonly string[] = [
     tokenize = 'unicode61 remove_diacritics 2'
   );
   `,
+  /* v2: wall-clock end time in the user's time zone, for local-time statistics.
+     Filled by the app (Library.ensureLocalTimes), never by SQL. */ `
+  ALTER TABLE plays ADD COLUMN local_end INTEGER;
+  CREATE INDEX plays_by_local_end ON plays (local_end);
+  `,
 ];
 
 export const SCHEMA_VERSION = MIGRATIONS.length;

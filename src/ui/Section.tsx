@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 interface SectionProps {
   readonly title: string;
   /** Short line beside the title (desktop) or under it (phone). */
-  readonly caption?: string;
+  readonly caption?: string | undefined;
   readonly children: ReactNode;
 }
 
