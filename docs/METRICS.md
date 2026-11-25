@@ -68,6 +68,20 @@ média diária não é diluída por dias anteriores à conta.
 Faixas sem álbum na exportação aparecem em Faixas e Artistas, mas não em Álbuns. A soma dos
 streams e do tempo de todas as faixas é igual aos totais da Visão geral (coberto por teste).
 
+## Linha do tempo
+
+| Elemento            | Definição                                                                                                                                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Atividade           | Tempo ouvido (ou streams) por ano, mês, semana ou dia; todos os intervalos do período aparecem, inclusive os vazios.                                                                                                |
+| Semana              | Semana ISO: começa na segunda-feira; a chave é a data da segunda.                                                                                                                                                   |
+| Dia                 | Disponível para períodos de até 2 anos; acima disso, a série é mostrada por semana.                                                                                                                                 |
+| Quando você ouve    | Tempo ouvido por dia da semana × hora local. A intensidade usa escala de raiz quadrada para que horas pouco ativas continuem visíveis.                                                                              |
+| Mais ativo          | Célula (dia da semana, hora) com maior tempo ouvido no período.                                                                                                                                                     |
+| Artista de cada ano | Artista com mais streams em cada ano civil com dados (empate → tempo ouvido → nome), com sua parcela dos streams do ano. Usa todo o histórico, não o período.                                                       |
+| Comparar anos       | As métricas da Visão geral calculadas para cada ano. Variação = (B − A) ÷ A; não é mostrada quando A é zero.                                                                                                        |
+| Mesmo intervalo     | Quando os dados terminam antes de 31/12, os dois anos são comparados de 1º de janeiro até o mesmo dia e mês do último dado (29/02 vira 28/02 em anos não bissextos). "Ano inteiro" compara os anos civis completos. |
+| Artistas em comum   | Artistas com reprodução registrada nos dois anos; "só em A" e "só em B" são os demais.                                                                                                                              |
+
 ## Histórico
 
 Lista cada reprodução registrada (inclusive as de menos de 30 s), da mais recente para a mais

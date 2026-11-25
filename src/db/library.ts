@@ -23,7 +23,16 @@ import {
   type Ranking,
   type RankingQuery,
 } from '../stats/rankings.ts';
-import type { PeriodSpec } from '../stats/period.ts';
+import type { Granularity, PeriodSpec } from '../stats/period.ts';
+import {
+  compare,
+  dominantArtists,
+  timeline,
+  yearsWithData,
+  type Comparison,
+  type Timeline,
+  type YearLeader,
+} from '../stats/timeline.ts';
 import { configureConnection, migrate } from './schema.ts';
 import { asText, asTextOrNull, exportDatabase, selectInt, type Database } from './sqlite.ts';
 
@@ -159,6 +168,22 @@ export class Library {
   /** Overview statistics for a period, or null when there is no music data. */
   overview(spec: PeriodSpec): Overview | null {
     return overview(this.db, spec);
+  }
+
+  timeline(spec: PeriodSpec, granularity: Granularity | null): Timeline | null {
+    return timeline(this.db, spec, granularity);
+  }
+
+  dominantArtists(): YearLeader[] {
+    return dominantArtists(this.db);
+  }
+
+  yearsWithData(): number[] {
+    return yearsWithData(this.db);
+  }
+
+  compare(a: PeriodSpec, b: PeriodSpec): Comparison | null {
+    return compare(this.db, a, b);
   }
 
   ranking(query: RankingQuery): Ranking | null {

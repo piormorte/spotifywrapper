@@ -32,3 +32,33 @@ describe('indexOfMax', () => {
     expect(indexOfMax([])).toBe(-1);
   });
 });
+
+describe('layoutGroupedBars', () => {
+  it('places series side by side on a shared scale', async () => {
+    const { layoutGroupedBars } = await import('./bars.ts');
+    const rects = layoutGroupedBars({
+      series: [
+        [10, 5],
+        [20, 0, 4],
+      ],
+      width: 300,
+      height: 100,
+      groupPadding: 0,
+      barGap: 0,
+    });
+    expect(rects).toHaveLength(6);
+    expect(rects.map((r) => [r.index, r.series, r.x, r.width, r.height])).toEqual([
+      [0, 0, 0, 50, 50],
+      [0, 1, 50, 50, 100],
+      [1, 0, 100, 50, 25],
+      [1, 1, 150, 50, 0],
+      [2, 0, 200, 50, 0],
+      [2, 1, 250, 50, 20],
+    ]);
+  });
+
+  it('returns nothing for empty input', async () => {
+    const { layoutGroupedBars } = await import('./bars.ts');
+    expect(layoutGroupedBars({ series: [], width: 10, height: 10 })).toEqual([]);
+  });
+});

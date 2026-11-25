@@ -16,7 +16,7 @@ export type PeriodSpec =
   | { readonly preset: PeriodPreset }
   | { readonly preset: 'custom'; readonly start: string; readonly end: string };
 
-export type Granularity = 'year' | 'month' | 'day';
+export type Granularity = 'year' | 'month' | 'week' | 'day';
 
 export interface ResolvedPeriod {
   /** Inclusive start (local ms, midnight). */
@@ -111,25 +111,52 @@ export function resolvePeriod(spec: PeriodSpec, range: DataRange): ResolvedPerio
   return { from, to, days, granularity: granularityFor(days) };
 }
 
-/** Bucket key for a day at a granularity: "2024", "2024-03" or "2024-03-05". */
+/** Monday (local ms, midnight) of the ISO week containing `localMs`. */
+export function weekStart(localMs: number): number {
+  const day = Math.floor(localMs / MS_PER_DAY);
+  // 1970-01-01 was a Thursday: (day + 3) % 7 is 0 on Mondays.
+  return (day - ((day + 3) % 7)) * MS_PER_DAY;
+}
+
+/** Day of week, Monday = 0 … Sunday = 6. */
+export function weekday(localMs: number): number {
+  return (Math.floor(localMs / MS_PER_DAY) + 3) % 7;
+}
+
+/**
+ * Bucket key for a day at a granularity: "2024", "2024-03", "2024-03-04"
+ * (the Monday of its week) or "2024-03-05".
+ */
 export function bucketKey(localMs: number, granularity: Granularity): string {
+  if (granularity === 'week') return dayKey(weekStart(localMs));
   const key = dayKey(localMs);
   return granularity === 'year' ? key.slice(0, 4) : granularity === 'month' ? key.slice(0, 7) : key;
 }
 
-/** Every bucket key in the period, in order (for zero-filled series). */
-export function bucketKeys(period: ResolvedPeriod): string[] {
+function nextBucket(cursor: number, granularity: Granularity): number {
+  const d = new Date(cursor);
+  switch (granularity) {
+    case 'day':
+      return cursor + MS_PER_DAY;
+    case 'week':
+      return weekStart(cursor) + 7 * MS_PER_DAY;
+    case 'month':
+      return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1);
+    case 'year':
+      return Date.UTC(d.getUTCFullYear() + 1, 0, 1);
+  }
+}
+
+/** Every bucket key in [from, to), in order (for zero-filled series). */
+export function bucketKeysBetween(from: number, to: number, granularity: Granularity): string[] {
   const keys: string[] = [];
-  let cursor = period.from;
-  while (cursor < period.to) {
-    const key = bucketKey(cursor, period.granularity);
-    if (keys.at(-1) !== key) keys.push(key);
-    cursor =
-      period.granularity === 'day'
-        ? cursor + MS_PER_DAY
-        : period.granularity === 'month'
-          ? Date.UTC(new Date(cursor).getUTCFullYear(), new Date(cursor).getUTCMonth() + 1, 1)
-          : Date.UTC(new Date(cursor).getUTCFullYear() + 1, 0, 1);
+  for (let cursor = from; cursor < to; cursor = nextBucket(cursor, granularity)) {
+    keys.push(bucketKey(cursor, granularity));
   }
   return keys;
+}
+
+/** Every bucket key in the period at its own granularity. */
+export function bucketKeys(period: ResolvedPeriod): string[] {
+  return bucketKeysBetween(period.from, period.to, period.granularity);
 }

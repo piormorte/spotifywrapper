@@ -16,9 +16,8 @@ import { BarChart } from '../../ui/BarChart.tsx';
 import { Figure } from '../../ui/Figure.tsx';
 import { RankList } from '../../ui/RankList.tsx';
 import { Section } from '../../ui/Section.tsx';
+import { labelEvery, seriesLabel } from '../series-labels.ts';
 import { PeriodPicker } from './PeriodPicker.tsx';
-
-const MONTHS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
 function formatDayKey(key: string, long = false): string {
   const ms = parseDayKey(key);
@@ -26,15 +25,10 @@ function formatDayKey(key: string, long = false): string {
   return long ? formatLocalDateLong(ms) : formatLocalDate(ms);
 }
 
-function seriesLabel(key: string, granularity: Granularity): string {
-  if (granularity === 'year') return key;
-  if (granularity === 'month') return MONTHS[Number(key.slice(5, 7)) - 1] ?? key;
-  return String(Number(key.slice(8, 10)));
-}
-
 const SERIES_CAPTION: Record<Granularity, string> = {
   year: 'Tempo ouvido por ano',
   month: 'Tempo ouvido por mês',
+  week: 'Tempo ouvido por semana',
   day: 'Tempo ouvido por dia',
 };
 
@@ -106,12 +100,7 @@ function Definitions() {
 function OverviewContent({ data }: { data: Overview }) {
   const minutes = data.msPlayed / MS_PER_MINUTE;
   const values = data.series.map((p) => p.msPlayed / MS_PER_MINUTE);
-  const labelEvery =
-    data.period.granularity === 'day'
-      ? Math.ceil(data.series.length / 8)
-      : data.series.length > 12
-        ? 3
-        : 1;
+  const every = labelEvery(data.series.length, data.period.granularity);
   const hourTotal = data.hours.reduce((a, b) => a + b, 0);
 
   return (
@@ -157,7 +146,7 @@ function OverviewContent({ data }: { data: Overview }) {
             title={`${SERIES_CAPTION[data.period.granularity]} no período`}
             values={values}
             labels={data.series.map((p) => seriesLabel(p.key, data.period.granularity))}
-            labelEvery={labelEvery}
+            labelEvery={every}
             height={200}
             formatValue={(v) => `${formatInteger(v)} min`}
           />

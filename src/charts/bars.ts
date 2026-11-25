@@ -57,3 +57,59 @@ export function indexOfMax(values: readonly number[]): number {
   }
   return best;
 }
+
+export interface GroupedBarRect extends BarRect {
+  /** Series index within the group. */
+  readonly series: number;
+}
+
+/**
+ * Side-by-side bars: one group per index, one bar per series, all on a shared
+ * scale. Missing values (shorter series) are drawn as zero.
+ */
+export function layoutGroupedBars(input: {
+  readonly series: readonly (readonly number[])[];
+  readonly width: number;
+  readonly height: number;
+  readonly groupPadding?: number;
+  readonly barGap?: number;
+  readonly minVisibleHeight?: number;
+}): GroupedBarRect[] {
+  const { series, width, height, groupPadding = 0.3, barGap = 2, minVisibleHeight = 1 } = input;
+  if (width <= 0 || height <= 0) throw new RangeError('Chart size must be positive');
+  const groups = Math.max(0, ...series.map((s) => s.length));
+  if (groups === 0 || series.length === 0) return [];
+  for (const s of series) {
+    for (const v of s) {
+      if (!Number.isFinite(v) || v < 0) throw new RangeError(`Bar values must be >= 0 (got ${v})`);
+    }
+  }
+  const band = scaleBand<number>()
+    .domain(Array.from({ length: groups }, (_, i) => i))
+    .range([0, width])
+    .paddingInner(groupPadding)
+    .paddingOuter(0);
+  const max = Math.max(0, ...series.flat());
+  const y = scaleLinear()
+    .domain([0, max === 0 ? 1 : max])
+    .range([0, height]);
+  const barWidth = Math.max(0, (band.bandwidth() - barGap * (series.length - 1)) / series.length);
+
+  const rects: GroupedBarRect[] = [];
+  for (let g = 0; g < groups; g++) {
+    series.forEach((s, si) => {
+      const value = s[g] ?? 0;
+      const h = value > 0 ? Math.max(y(value), minVisibleHeight) : 0;
+      rects.push({
+        index: g,
+        series: si,
+        value,
+        x: (band(g) ?? 0) + si * (barWidth + barGap),
+        y: height - h,
+        width: barWidth,
+        height: h,
+      });
+    });
+  }
+  return rects;
+}

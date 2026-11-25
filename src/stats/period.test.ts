@@ -97,3 +97,19 @@ describe('buckets', () => {
     expect(d && bucketKeys(d)).toEqual(['2024-02-27', '2024-02-28', '2024-02-29', '2024-03-01']);
   });
 });
+
+describe('weeks', () => {
+  it('starts ISO weeks on Monday', async () => {
+    const { weekStart, weekday, bucketKeysBetween } = await import('./period.ts');
+    expect(dayKey(weekStart(at(2024, 3, 6)))).toBe('2024-03-04'); // Wednesday → Monday
+    expect(dayKey(weekStart(at(2024, 3, 4)))).toBe('2024-03-04');
+    expect(dayKey(weekStart(at(2024, 3, 10, 23)))).toBe('2024-03-04'); // Sunday
+    expect(weekday(at(2024, 3, 4))).toBe(0);
+    expect(weekday(at(2024, 3, 10))).toBe(6);
+    expect(bucketKeysBetween(at(2024, 3, 6), at(2024, 3, 20), 'week')).toEqual([
+      '2024-03-04',
+      '2024-03-11',
+      '2024-03-18',
+    ]);
+  });
+});
