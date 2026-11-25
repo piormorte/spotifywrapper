@@ -15,6 +15,7 @@ import {
   type LibrarySummary,
 } from './queries.ts';
 import { isValidTimeZone, toLocalMs } from '../lib/time.ts';
+import { analytics, fadedArtists, type Analytics, type FadedArtist } from '../stats/analytics.ts';
 import { overview, type Overview } from '../stats/overview.ts';
 import {
   albumTopTracks,
@@ -28,11 +29,14 @@ import {
   compare,
   dominantArtists,
   timeline,
+  yearlyTotals,
   yearsWithData,
   type Comparison,
   type Timeline,
   type YearLeader,
+  type YearTotal,
 } from '../stats/timeline.ts';
+import { personality, type Observation } from '../stats/personality.ts';
 import { configureConnection, migrate } from './schema.ts';
 import { asText, asTextOrNull, exportDatabase, selectInt, type Database } from './sqlite.ts';
 
@@ -172,6 +176,24 @@ export class Library {
 
   timeline(spec: PeriodSpec, granularity: Granularity | null): Timeline | null {
     return timeline(this.db, spec, granularity);
+  }
+
+  analytics(spec: PeriodSpec): Analytics | null {
+    return analytics(this.db, spec);
+  }
+
+  yearlyTotals(): YearTotal[] {
+    return yearlyTotals(this.db);
+  }
+
+  /** Observations for the period, from its analytics and the yearly totals. */
+  personality(spec: PeriodSpec): { analytics: Analytics; observations: Observation[] } | null {
+    const a = analytics(this.db, spec);
+    return a ? { analytics: a, observations: personality(a, yearlyTotals(this.db)) } : null;
+  }
+
+  fadedArtists(): FadedArtist[] {
+    return fadedArtists(this.db);
   }
 
   dominantArtists(): YearLeader[] {

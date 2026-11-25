@@ -15,8 +15,8 @@ export const PRIMARY: readonly Destination[] = [
   { label: 'Artistas', short: 'Artistas', route: 'artistas' },
   { label: 'Álbuns', short: 'Álbuns', route: 'albuns' },
   { label: 'Linha do tempo', short: 'Tempo', route: 'linha-do-tempo' },
-  { label: 'Análises', short: 'Análises' },
-  { label: 'Perfil de escuta', short: 'Perfil' },
+  { label: 'Análises', short: 'Análises', route: 'analises' },
+  { label: 'Perfil de escuta', short: 'Perfil', route: 'perfil' },
 ];
 
 export const SECONDARY: readonly Destination[] = [
@@ -37,6 +37,8 @@ export const MOBILE: readonly Destination[] = [
 export const MORE_ROUTES: readonly Route[] = [
   'albuns',
   'linha-do-tempo',
+  'analises',
+  'perfil',
   'importar',
   'ajustes',
   'mais',

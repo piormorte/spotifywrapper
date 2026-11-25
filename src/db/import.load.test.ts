@@ -83,6 +83,14 @@ describe.skipIf(!process.env['LOAD'])('load', () => {
     const rankingAllMs = performance.now() - t0;
 
     t0 = performance.now();
+    library.analytics({ preset: 'all' });
+    const analyticsMs = performance.now() - t0;
+
+    t0 = performance.now();
+    library.fadedArtists();
+    const fadedMs = performance.now() - t0;
+
+    t0 = performance.now();
     library.setTimeZone('Asia/Tokyo');
     const timeZoneMs = performance.now() - t0;
 
@@ -109,6 +117,8 @@ describe.skipIf(!process.env['LOAD'])('load', () => {
         timelineWeeksMs: +timelineMs.toFixed(0),
         yearLeadersMs: +leadersMs.toFixed(0),
         rankingAllTracksMs: +rankingAllMs.toFixed(0),
+        analyticsAllMs: +analyticsMs.toFixed(0),
+        fadedMs: +fadedMs.toFixed(0),
         timeZoneS: +(timeZoneMs / 1000).toFixed(1),
         backupS: +(backupMs / 1000).toFixed(1),
         backupMB: +(bytes.byteLength / 1e6).toFixed(1),

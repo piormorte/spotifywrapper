@@ -82,6 +82,48 @@ streams e do tempo de todas as faixas é igual aos totais da Visão geral (cober
 | Mesmo intervalo     | Quando os dados terminam antes de 31/12, os dois anos são comparados de 1º de janeiro até o mesmo dia e mês do último dado (29/02 vira 28/02 em anos não bissextos). "Ano inteiro" compara os anos civis completos. |
 | Artistas em comum   | Artistas com reprodução registrada nos dois anos; "só em A" e "só em B" são os demais.                                                                                                                              |
 
+## Análises
+
+Todas valem para o período escolhido, exceto "Deixaram de aparecer".
+
+| Métrica                     | Definição                                                                                                                                                                                                      |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Maior sequência             | Maior número de dias locais consecutivos com pelo menos um stream.                                                                                                                                             |
+| Sequência no fim do período | Dias consecutivos com stream que terminam no último dia do período (0 se esse dia não teve stream).                                                                                                            |
+| Dia de pico                 | Dia com maior tempo ouvido; empate → o mais antigo.                                                                                                                                                            |
+| Sessão                      | Reproduções seguidas, em ordem de fim; uma nova sessão começa quando o início de uma reprodução (fim − duração) está mais de **15 min** depois do fim da anterior. Duração = do primeiro início ao último fim. |
+| Sessão mais longa / média   | A maior duração; a média das durações de todas as sessões do período.                                                                                                                                          |
+| Mais repetida em um dia     | Maior número de streams de uma mesma faixa em um único dia; empate → mais tempo ouvido → dia mais antigo.                                                                                                      |
+| Streams por faixa           | Streams ÷ faixas diferentes com pelo menos um stream.                                                                                                                                                          |
+| Hora mais ativa             | Hora local com maior tempo ouvido.                                                                                                                                                                             |
+| Madrugada                   | Parcela do tempo ouvido entre 0h e 5h59. Partes do dia: madrugada 0–5h, manhã 6–11h, tarde 12–17h, noite 18–23h.                                                                                               |
+| Média mensal                | Tempo ouvido ÷ (dias do período ÷ 30,4375).                                                                                                                                                                    |
+| Fim de semana × dias úteis  | Tempo ouvido em sábados e domingos ÷ número desses dias no período; o mesmo para segunda a sexta.                                                                                                              |
+| Lealdade                    | Parcela dos streams do artista mais ouvido e dos 5 mais ouvidos.                                                                                                                                               |
+| Diversidade                 | Entropia de Shannon dos streams por artista dividida por ln(número de artistas com streams): 0 = um só artista, 1 = todos por igual.                                                                           |
+| Artistas efetivos           | e elevado à entropia: quantos artistas, ouvidos exatamente por igual, dariam a mesma diversidade.                                                                                                              |
+| Artistas e faixas novos     | Itens cuja primeira reprodução registrada em **todo o histórico** cai dentro do período, e sua parcela entre os itens ouvidos no período. Em "Todo o período", tudo é novo.                                    |
+| Deixaram de aparecer        | Artistas com **20+ streams** antes dos últimos **365 dias** de dados e nenhum stream dentro deles. Independe do período.                                                                                       |
+
+## Perfil de escuta
+
+Observações geradas a partir das Análises, com a base numérica de cada uma. Os limites são fixos
+(`src/stats/personality.ts`):
+
+| Observação                                        | Regra                                                                                         |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Fiel aos favoritos / Escuta distribuída           | 5 artistas com ≥ 50% dos streams, ou menos.                                                   |
+| Diversidade alta / moderada / baixa               | Equilíbrio ≥ 0,8 / ≥ 0,6 / abaixo.                                                            |
+| Gosta de repetir / Prefere variar                 | Streams por faixa ≥ 5, ou menos.                                                              |
+| Escuta mais de manhã/à tarde/à noite/de madrugada | A parte do dia com maior parcela do tempo ouvido.                                             |
+| Ouvinte da madrugada                              | Madrugada ≥ 15% do tempo ouvido.                                                              |
+| Fim de semana × dias úteis                        | Razão das médias diárias ≥ 1,2 ou ≤ 0,8; caso contrário, "ritmo constante".                   |
+| Novidades                                         | Só quando o período começa depois do primeiro dia de dados: ≥ 30% de artistas novos ou menos. |
+| Tendência                                         | Variação do tempo ouvido entre os dois últimos anos **completos**: ≥ +15%, ≤ −15% ou estável. |
+| Constância                                        | A maior sequência de dias com stream.                                                         |
+
+Gêneros não são usados: os arquivos exportados não trazem essa informação.
+
 ## Histórico
 
 Lista cada reprodução registrada (inclusive as de menos de 30 s), da mais recente para a mais

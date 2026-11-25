@@ -185,3 +185,35 @@ export function compare(db: Database, a: PeriodSpec, b: PeriodSpec): Comparison 
     },
   };
 }
+
+export interface YearTotal {
+  readonly year: number;
+  readonly msPlayed: number;
+  readonly artists: number;
+  /** The data covers the whole calendar year (Jan 1 to Dec 31). */
+  readonly complete: boolean;
+}
+
+/** Listening time and distinct artists per calendar year with data. */
+export function yearlyTotals(db: Database): YearTotal[] {
+  const range = dataRange(db);
+  if (!range) return [];
+  const firstDay = Math.floor(range.first / MS_PER_DAY) * MS_PER_DAY;
+  const lastDay = Math.floor(range.last / MS_PER_DAY) * MS_PER_DAY;
+  return yearsWithData(db).map((year) => {
+    const from = Date.UTC(year, 0, 1);
+    const to = Date.UTC(year + 1, 0, 1);
+    const row = db.selectArray(
+      `SELECT COALESCE(SUM(p.ms_played), 0), COUNT(DISTINCT t.artist_id)
+       FROM plays p JOIN tracks t ON t.id = p.track_id
+       WHERE t.kind = 'track' AND p.ms_played > 0 AND p.local_end >= ? AND p.local_end < ?`,
+      [from, to],
+    );
+    return {
+      year,
+      msPlayed: Number(row?.[0] ?? 0),
+      artists: Number(row?.[1] ?? 0),
+      complete: firstDay <= from && lastDay >= to - MS_PER_DAY,
+    };
+  });
+}

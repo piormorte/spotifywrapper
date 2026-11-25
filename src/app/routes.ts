@@ -9,6 +9,8 @@ export const ROUTES = [
   'artistas',
   'albuns',
   'linha-do-tempo',
+  'analises',
+  'perfil',
   'importar',
   'ajustes',
   'mais',

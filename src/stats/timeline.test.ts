@@ -105,6 +105,13 @@ describe('dominant artist per year', () => {
   it('lists the years with data', () => {
     expect(library.yearsWithData()).toEqual([2023, 2024]);
   });
+
+  it('totals each year and flags incomplete ones', () => {
+    expect(library.yearlyTotals()).toEqual([
+      { year: 2023, msPlayed: 540_000, artists: 2, complete: false },
+      { year: 2024, msPlayed: 680_000, artists: 3, complete: false },
+    ]);
+  });
 });
 
 describe('comparison', () => {

@@ -49,3 +49,49 @@ export function aggregateTracks(db: Database, from: number, to: number): void {
 export function dropAggregate(db: Database): void {
   db.exec('DROP TABLE IF EXISTS temp.tg');
 }
+
+/** One music play as streamed by scanPeriodPlays. */
+export interface ScannedPlay {
+  readonly tsEnd: number;
+  readonly msPlayed: number;
+  readonly localEnd: number;
+  readonly trackId: number;
+}
+
+const SCAN_CHUNK_MS = 120 * 86_400_000;
+/** Local time is UTC ± at most 14 h; widen the UTC window so no play is missed. */
+const ZONE_MARGIN_MS = 2 * 86_400_000;
+
+/**
+ * Visits every music play with ms_played > 0 whose local end is in
+ * [from, to), in a stable order (ts_end, track_id, ms_played — the unique
+ * index, so SQLite never sorts). Rows cross into JavaScript as one JSON array
+ * per 120-day chunk of ts_end: far cheaper than stepping row by row, with
+ * memory bounded by the chunk.
+ */
+export function scanPeriodPlays(
+  db: Database,
+  from: number,
+  to: number,
+  visit: (play: ScannedPlay) => void,
+): void {
+  for (let start = from - ZONE_MARGIN_MS; start < to + ZONE_MARGIN_MS; start += SCAN_CHUNK_MS) {
+    const json = db.selectValue(
+      `SELECT json_group_array(json_array(ts_end, ms_played, local_end, track_id)) FROM (
+         SELECT p.ts_end, p.ms_played, p.local_end, p.track_id FROM plays p
+         WHERE p.ts_end >= ? AND p.ts_end < ?
+           AND p.ms_played > 0 AND p.local_end >= ? AND p.local_end < ? AND ${MUSIC_ONLY}
+         ORDER BY p.ts_end, p.track_id, p.ms_played)`,
+      [start, Math.min(start + SCAN_CHUNK_MS, to + ZONE_MARGIN_MS), from, to],
+    );
+    if (typeof json !== 'string') continue;
+    for (const [tsEnd, msPlayed, localEnd, trackId] of JSON.parse(json) as number[][]) {
+      visit({
+        tsEnd: tsEnd ?? 0,
+        msPlayed: msPlayed ?? 0,
+        localEnd: localEnd ?? 0,
+        trackId: trackId ?? 0,
+      });
+    }
+  }
+}
