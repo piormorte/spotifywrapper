@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ReferencePage } from '../design/ReferencePage.tsx';
 import { ImportPage } from '../features/import/ImportPage.tsx';
+import { AnalyticsPage } from '../features/analytics/AnalyticsPage.tsx';
+import { PersonalityPage } from '../features/analytics/PersonalityPage.tsx';
 import { HistoryPage } from '../features/history/HistoryPage.tsx';
 import { OverviewPage } from '../features/overview/OverviewPage.tsx';
 import { RankingsPage } from '../features/rankings/RankingsPage.tsx';
+import { TimelinePage } from '../features/timeline/TimelinePage.tsx';
 import type { PeriodSpec } from '../stats/period.ts';
 import { MorePage } from './MorePage.tsx';
 import { SettingsPage } from '../features/settings/SettingsPage.tsx';
@@ -72,6 +75,12 @@ export function App() {
         return <RankingsPage kind="artists" period={period} onPeriodChange={setPeriod} />;
       case 'albuns':
         return <RankingsPage kind="albums" period={period} onPeriodChange={setPeriod} />;
+      case 'linha-do-tempo':
+        return <TimelinePage period={period} onPeriodChange={setPeriod} />;
+      case 'analises':
+        return <AnalyticsPage period={period} onPeriodChange={setPeriod} />;
+      case 'perfil':
+        return <PersonalityPage period={period} onPeriodChange={setPeriod} />;
       case 'importar':
         return <ImportPage />;
       case 'ajustes':

@@ -1,8 +1,11 @@
 import type { BackupInfo } from './backup.ts';
 import type { ImportProgress, ImportResult, RestoreMode, RestoreResult } from './library.ts';
 import type { HistoryPage, HistoryQuery, ImportLogEntry, LibrarySummary } from './queries.ts';
+import type { Analytics, FadedArtist } from '../stats/analytics.ts';
 import type { Overview } from '../stats/overview.ts';
-import type { PeriodSpec } from '../stats/period.ts';
+import type { Observation } from '../stats/personality.ts';
+import type { Granularity, PeriodSpec } from '../stats/period.ts';
+import type { Comparison, Timeline, YearLeader } from '../stats/timeline.ts';
 import type { AlbumTrack, Ranking, RankingQuery } from '../stats/rankings.ts';
 
 /** Messages between the UI thread and the database worker. */
@@ -20,7 +23,14 @@ export interface LibraryOps {
   summary: [undefined, LibrarySummary];
   history: [HistoryQuery, HistoryPage];
   overview: [PeriodSpec, Overview | null];
+  analytics: [PeriodSpec, Analytics | null];
+  personality: [PeriodSpec, { analytics: Analytics; observations: Observation[] } | null];
+  fadedArtists: [undefined, FadedArtist[]];
   ranking: [RankingQuery, Ranking | null];
+  timeline: [{ period: PeriodSpec; granularity: Granularity | null }, Timeline | null];
+  dominantArtists: [undefined, YearLeader[]];
+  yearsWithData: [undefined, number[]];
+  compare: [{ a: PeriodSpec; b: PeriodSpec }, Comparison | null];
   albumTracks: [{ albumId: number; period: PeriodSpec }, AlbumTrack[]];
   getTimeZone: [undefined, string];
   setTimeZone: [string, LibrarySummary];

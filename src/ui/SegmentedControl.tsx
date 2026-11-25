@@ -81,6 +81,7 @@ export function SegmentedControl<T extends string>({
             type="button"
             role="radio"
             aria-checked={selected}
+            aria-label={segment.short ? segment.label : undefined}
             tabIndex={selected ? 0 : -1}
             onClick={() => {
               onChange(segment.value);
