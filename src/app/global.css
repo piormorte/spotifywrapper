@@ -1,0 +1,20 @@
+@import 'tailwindcss';
+
+/*
+ * Stage 0 baseline only. Design tokens, typography and themes are defined
+ * in Stage 1 and require visual approval.
+ */
+:root {
+  color-scheme: light dark;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable', 'Segoe UI', system-ui,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background: Canvas;
+  color: CanvasText;
+}
