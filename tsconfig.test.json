@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node", "vite/client"]
+  },
+  "include": [
+    "src/**/*.test.ts",
+    "src/db/test-utils.ts",
+    "src/vite-env.d.ts",
+    "config/**/*.test.ts"
+  ]
+}

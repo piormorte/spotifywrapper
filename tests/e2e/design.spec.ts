@@ -35,7 +35,7 @@ test.describe('Stage 1 sample screen', () => {
 test.describe('themes', () => {
   test('follows the system scheme and can be overridden', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
-    await page.goto('/');
+    await page.goto('/#ajustes');
     const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     expect(await bg()).toBe('rgb(0, 0, 0)');
 
@@ -55,7 +55,7 @@ test.describe('themes', () => {
 });
 
 test('export specimens render with the bundled font', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/#referencia');
   const canvas = page.getByRole('img', { name: /Stories, tema escuro/ });
   await canvas.scrollIntoViewIfNeeded();
   await expect

@@ -79,11 +79,15 @@ São os arquivos `Streaming_History_Audio_*.json` (e `Streaming_History_Video_*.
 
 ### 3.2 Pacote básico "Account data" (complementar)
 
-São os arquivos `StreamingHistory_music_*.json` / `StreamingHistory*.json`, com `endTime` (horário local, sem fuso), `artistName`, `trackName` e `msPlayed`. Cobrem cerca de 1 ano, não têm URI e chegam mais rápido que o Extended.
+São os arquivos `StreamingHistory_music_*.json` e `StreamingHistory_podcast_*.json`, com `endTime` (UTC, precisão de minuto, conforme a documentação da Spotify), `artistName`/`trackName` (ou `podcastName`/`episodeName`) e `msPlayed`. Cobrem cerca de 1 ano, não têm URI e chegam mais rápido que o Extended.
 
 - Servem para cobrir o período depois da última exportação Extended.
 - Ficam marcados com `source = 'basic'`.
-- São substituídos quando uma exportação Extended nova cobre o mesmo período (correspondência por nome, artista e horário com tolerância).
+- **O Extended é a fonte de autoridade no período que ele cobre** (até o seu último registro):
+  - um registro básico dentro desse período não é gravado (aparece no relatório como "ignorado: o histórico estendido já cobre esse período");
+  - registros básicos já gravados são removidos quando um Extended novo passa a cobri-los;
+  - um registro Extended idêntico a um básico (mesma hora, faixa e duração) assume a linha, com `source` e detalhes do Extended.
+- A faixa é ligada pelo nome do artista e da faixa (sem diferenciar maiúsculas) a uma faixa já conhecida, preferindo a que tem URI.
 
 ### 3.3 O que não existe sem a API e como cada caso é tratado
 
@@ -120,38 +124,45 @@ Todas são **constantes fixas**, para que os resultados possam ser reproduzidos.
 
 ## 5. Importação
 
-1. São aceitos vários `.json` ao mesmo tempo. O `.zip` original entra numa etapa posterior, se não exigir dependência pesada.
-2. A leitura roda num **worker**, um arquivo por vez. A validação é feita registro a registro, por um esquema escrito à mão, e cada motivo de rejeição tem um código.
+1. São aceitos vários `.json` ao mesmo tempo. O `.zip` original entra numa etapa posterior, se não exigir dependência pesada (por enquanto o app pede para extrair).
+2. A leitura roda no **worker do banco**, um arquivo por vez (memória limitada ao maior arquivo). A validação é feita registro a registro, por um esquema escrito à mão, e cada motivo de rejeição tem um código: `not_an_object`, `missing_timestamp`, `invalid_timestamp` (inválida, anterior a 2008 ou no futuro), `invalid_ms_played`, `missing_identity`.
 3. **Normalização:**
    - `ts` vira época em milissegundos (UTC).
-   - Nomes passam por NFC e `trim`.
-   - `track_key` = URI ou, quando não há URI, `local:` + hash de nome, artista e álbum.
-   - `artist_key` e `album_key` vêm de nomes normalizados (case-folding).
-4. **Deduplicação** pela chave natural `(ts, track_key, ms_played)` com `INSERT OR IGNORE`. Reimportar o mesmo arquivo não muda nada.
-5. **Gravação em lotes** de cerca de 5 000 linhas por transação. O progresso é informado ao app: lidos, importados, duplicados, rejeitados por motivo e ignorados (dados pessoais descartados).
-6. Depois de importar, as tabelas auxiliares e o índice de busca (FTS5) são recalculados.
-7. Cada importação fica registrada no log `imports`: nome do arquivo, SHA-256, contagens, faixa de datas e data da importação.
+   - Nomes passam por NFC, `trim` e colapso de espaços.
+   - `track_key` = URI ou, quando não há URI, `name:<tipo>:` + hash de artista e título normalizados.
+   - `artist_key` e `album_key` vêm de nomes normalizados (NFKC + minúsculas).
+   - Uma faixa vista primeiro sem URI adota a URI quando ela aparece depois (sem duplicar a faixa).
+4. **Deduplicação** pela chave natural `(ts_end, track_id, ms_played)` com `INSERT OR IGNORE`. Reimportar o mesmo arquivo não muda nada; o relatório avisa quando o arquivo (mesmo SHA-256) já tinha sido importado.
+5. **Gravação em lotes** de 5 000 linhas por transação, enviadas ao SQLite como um único JSON (`json_each`). O progresso é informado ao app por lote.
+6. **Relatório por arquivo:** registros lidos, novos, já existentes, rejeitados por motivo, registros de 0 s, dados pessoais descartados e campos não reconhecidos.
+7. Depois de importar: remoção de reproduções básicas cobertas pelo Extended, limpeza do catálogo sem reproduções e reconstrução do índice de busca (FTS5).
+8. Cada importação fica registrada no log `imports`: nome do arquivo, SHA-256, tipo, contagens, relatório e data.
+9. Depois da primeira importação com dados novos, o app pede ao navegador armazenamento persistente (`navigator.storage.persist()`).
+
+**Desempenho medido** (Node, dados sintéticos, `npm run test:load`): 520 mil registros em 33 arquivos importados em ~10 s; reimportação idempotente em ~8 s; busca em ~40 ms; backup de 53 MB em ~8 s; restauração em ~9 s.
 
 ---
 
-## 6. Modelo de dados (esquema v1, resumo)
+## 6. Modelo de dados (esquema v1)
+
+Definição completa em `src/db/schema.ts` (migrações numeradas).
 
 ```sql
-plays(id, ts_end, ms_played, track_id, source, reason_start, reason_end,
-      shuffle, skipped, offline, incognito, flags)
-  UNIQUE(ts_end, track_id, ms_played)
-tracks(id, track_key UNIQUE, uri, name, artist_id, album_id)
 artists(id, artist_key UNIQUE, name)
 albums(id, album_key UNIQUE, name, artist_id)
-episodes(...)                         -- podcasts e audiolivros, separados
-imports(id, file_name, file_sha256, counts_json, min_ts, max_ts, created_at)
-daily_track(day, track_id, plays, streams, ms)   -- auxiliar por dia local
-search_fts USING fts5(track, artist, album)      -- histórico pesquisável
-settings(key, value)                             -- fuso, tema etc.
-meta: PRAGMA application_id, PRAGMA user_version
+tracks(id, track_key UNIQUE, kind, uri, name, name_key, artist_id, album_id)
+  -- kind: 'track' | 'episode' | 'audiobook' (podcasts e audiolivros no mesmo
+  --        catálogo, sempre fora das estatísticas de música)
+plays(id, ts_end, ms_played, track_id, source, import_id, reason_start,
+      reason_end, shuffle, skipped, offline, incognito)
+  UNIQUE(ts_end, track_id, ms_played); INDEX(track_id, ts_end)
+imports(id, file_name, file_sha256, kind, created_at, inserted, duplicates, report_json)
+settings(key, value)                 -- tema, data do último backup, (fuso na Etapa 3)
+search_fts USING fts5(track, artist, album)  -- contentless, sem acentos
+PRAGMA application_id = 'LINR', PRAGMA user_version = 1
 ```
 
-A tabela `daily_track` é recalculada quando o fuso muda.
+Tabelas auxiliares para estatísticas (por dia local, por exemplo) serão definidas na Etapa 3, junto com as métricas que as usam.
 
 ---
 
@@ -172,16 +183,13 @@ A tabela `daily_track` é recalculada quando o fuso muda.
 
 ## 8. Backup e restauração
 
-- O backup é o banco **inteiro**, num arquivo `.sqlite` gerado com `VACUUM INTO`, incluindo `backup_meta` (versão do app e do esquema, contagens e SHA-256 do conteúdo lógico).
-- **Como salvar:** File System Access API onde existir, download comum como alternativa e folha de compartilhamento no iOS.
+- O backup é o banco **inteiro** num único arquivo `.sqlite`, compactado com `VACUUM`, com uma tabela `backup_meta` contendo formato, versões do app e do esquema, data, contagens por tabela e **SHA-256 do conteúdo lógico** (todas as reproduções com os nomes resolvidos, em ordem canônica, sem IDs internos).
+- **Como salvar:** janela nativa de salvar (File System Access API) onde existir; download comum como alternativa.
 - **Como restaurar:**
-  1. Validação: `application_id`, versão do esquema, `integrity_check`, contagens e hash.
-  2. Backup automático do banco atual antes de qualquer mudança.
-  3. Modo **substituir**, com troca atômica dos arquivos no OPFS, ou **mesclar**, com `ATTACH` + `INSERT OR IGNORE` pela chave natural.
-- **Testes:**
-  - Ida e volta: as estatísticas antes e depois têm hash idêntico.
-  - Restauração de um backup de esquema antigo, passando pelas migrações.
-  - Arquivo corrompido ou de outro app é rejeitado sem alterar nada.
+  1. Validação completa antes de qualquer alteração: cabeçalho SQLite, `application_id`, versão do esquema (não pode ser mais nova que a do app), `integrity_check`, contagens e hash. Cada falha tem uma mensagem própria.
+  2. Cópia de segurança do banco atual guardada no OPFS antes de mudar qualquer coisa.
+  3. Modo **substituir** (troca o arquivo do banco) ou **mesclar** (reinsere as reproduções do backup pelo mesmo caminho da importação, sem duplicar).
+- **Testes:** ida e volta com hash idêntico, mesclagem sem duplicatas, cópia de segurança, rejeição de arquivo não SQLite, de outro app, sem `backup_meta`, adulterado e de versão mais nova — sempre sem alterar os dados atuais. O teste ponta a ponta faz backup, apaga, restaura e compara no navegador real.
 
 ---
 
@@ -262,18 +270,18 @@ public/
 
 ## 13. Roadmap
 
-| Etapa                             | Entregas                                                                                                                                                                                                                      | Critério de pronto                                                                                |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **0. Base**                       | Vite + React + TS strict, Tailwind v4, ESLint (regras de fronteira) + Prettier, Vitest, Playwright, CI (GitHub Actions), `_headers`/CSP, estrutura e docs                                                                     | CI verde: lint, typecheck, unit, build, e2e                                                       |
-| **1. Identidade visual**          | Nome do produto, tokens claro/escuro, tipografia (pilha do sistema + Inter), grid, movimento, primitivos, shell responsivo, página de referência e uma tela de exemplo **com dados de demonstração explicitamente rotulados** | ✅ **Aprovada em 25/11/2026**                                                                     |
-| **2. Banco, importação e backup** | Worker SQLite, esquema v1, migrações, parsers Extended e básico, validação, deduplicação, progresso, relatório, FTS5, backup e restauração                                                                                    | Mais de 500 mil registros sem travar a interface; reimportação idempotente; ida e volta do backup |
-| **3. Estatísticas + Overview**    | `stats/`, `METRICS.md`, seletor de período, Overview                                                                                                                                                                          | Cada métrica com teste e explicação                                                               |
-| **4. Histórico e rankings**       | Busca, filtros, Top Tracks/Artists/Albums, lista virtualizada                                                                                                                                                                 | Desempenho com mais de 30 mil faixas                                                              |
-| **5. Timeline e comparações**     | Ano, mês, semana, dia e hora, mapa de calor, período A×B                                                                                                                                                                      | —                                                                                                 |
-| **6. Advanced e Personality**     | Métricas e textos de observação                                                                                                                                                                                               | Testes com dados sintéticos                                                                       |
-| **7. Export Studio**              | Motor Canvas, templates, formatos, PDF                                                                                                                                                                                        | Regressão visual dos PNG                                                                          |
-| **8. PWA completo**               | Manifest, ícones, splash, uso offline, instalação                                                                                                                                                                             | Instalação ok em Windows, Android e iOS                                                           |
-| **9. Acabamento**                 | Acessibilidade, movimento, revisão de desempenho e segurança                                                                                                                                                                  | —                                                                                                 |
+| Etapa                                | Entregas                                                                                                                                                                                                                      | Critério de pronto                                                                                |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **0. Base**                          | Vite + React + TS strict, Tailwind v4, ESLint (regras de fronteira) + Prettier, Vitest, Playwright, CI (GitHub Actions), `_headers`/CSP, estrutura e docs                                                                     | CI verde: lint, typecheck, unit, build, e2e                                                       |
+| **1. Identidade visual**             | Nome do produto, tokens claro/escuro, tipografia (pilha do sistema + Inter), grid, movimento, primitivos, shell responsivo, página de referência e uma tela de exemplo **com dados de demonstração explicitamente rotulados** | ✅ **Aprovada em 25/11/2026**                                                                     |
+| **2. Banco, importação e backup** ✅ | Worker SQLite, esquema v1, migrações, parsers Extended e básico, validação, deduplicação, progresso, relatório, FTS5, backup e restauração                                                                                    | Mais de 500 mil registros sem travar a interface; reimportação idempotente; ida e volta do backup |
+| **3. Estatísticas + Overview**       | `stats/`, `METRICS.md`, seletor de período, Overview                                                                                                                                                                          | Cada métrica com teste e explicação                                                               |
+| **4. Histórico e rankings**          | Busca, filtros, Top Tracks/Artists/Albums, lista virtualizada                                                                                                                                                                 | Desempenho com mais de 30 mil faixas                                                              |
+| **5. Timeline e comparações**        | Ano, mês, semana, dia e hora, mapa de calor, período A×B                                                                                                                                                                      | —                                                                                                 |
+| **6. Advanced e Personality**        | Métricas e textos de observação                                                                                                                                                                                               | Testes com dados sintéticos                                                                       |
+| **7. Export Studio**                 | Motor Canvas, templates, formatos, PDF                                                                                                                                                                                        | Regressão visual dos PNG                                                                          |
+| **8. PWA completo**                  | Manifest, ícones, splash, uso offline, instalação                                                                                                                                                                             | Instalação ok em Windows, Android e iOS                                                           |
+| **9. Acabamento**                    | Acessibilidade, movimento, revisão de desempenho e segurança                                                                                                                                                                  | —                                                                                                 |
 
 ---
 

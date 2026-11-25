@@ -1,28 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ReferencePage } from '../design/ReferencePage.tsx';
 import { SampleOverview } from '../design/SampleOverview.tsx';
+import { ImportPage } from '../features/import/ImportPage.tsx';
+import { SettingsPage } from '../features/settings/SettingsPage.tsx';
+import { useLibrary } from './library-context.ts';
+import { parseRoute, type Route } from './routes.ts';
 import { Shell } from './Shell.tsx';
-import { SegmentedControl } from '../ui/SegmentedControl.tsx';
-import { applyTheme, THEME_SEGMENTS, type ThemePreference } from './theme.ts';
+import { applyTheme, type ThemePreference } from './theme.ts';
 
-/**
- * Stage 1: only the visual reference (#referencia, default) and the sample screen (#exemplo).
- * Functional screens are built after visual approval (docs/PLANNING.md §13).
- */
-
-type Route = 'reference' | 'sample';
-
-function readRoute(): Route {
-  return window.location.hash === '#exemplo' ? 'sample' : 'reference';
-}
+const THEMES: readonly ThemePreference[] = ['system', 'light', 'dark'];
 
 export function App() {
-  const [route, setRoute] = useState<Route>(readRoute);
-  const [theme, setTheme] = useState<ThemePreference>('system');
+  const { client, status } = useLibrary();
+  const [route, setRoute] = useState<Route>(() => parseRoute(window.location.hash));
+  const [theme, setThemeState] = useState<ThemePreference>('system');
 
   useEffect(() => {
     const onHashChange = () => {
-      setRoute(readRoute());
+      setRoute(parseRoute(window.location.hash));
       window.scrollTo({ top: 0 });
     };
     window.addEventListener('hashchange', onHashChange);
@@ -31,26 +26,52 @@ export function App() {
     };
   }, []);
 
+  // The theme preference is stored in the local database, not browser storage.
+  useEffect(() => {
+    if (status !== 'ready') return;
+    const lifecycle = { active: true };
+    void client.call('getSetting', 'theme').then((value) => {
+      if (lifecycle.active && value && (THEMES as readonly string[]).includes(value)) {
+        setThemeState(value as ThemePreference);
+      }
+    });
+    return () => {
+      lifecycle.active = false;
+    };
+  }, [client, status]);
+
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
 
-  if (route === 'sample') {
-    return (
-      <Shell
-        footer={
-          <SegmentedControl
-            label="Tema"
-            segments={THEME_SEGMENTS}
-            value={theme}
-            onChange={setTheme}
-            fullWidth
-          />
-        }
-      >
-        <SampleOverview />
-      </Shell>
-    );
+  const setTheme = useCallback(
+    (next: ThemePreference) => {
+      setThemeState(next);
+      void client.call('setSetting', { key: 'theme', value: next });
+    },
+    [client],
+  );
+
+  switch (route) {
+    case 'referencia':
+      return <ReferencePage theme={theme} onThemeChange={setTheme} />;
+    case 'exemplo':
+      return (
+        <Shell route={route}>
+          <SampleOverview />
+        </Shell>
+      );
+    case 'ajustes':
+      return (
+        <Shell route={route}>
+          <SettingsPage theme={theme} onThemeChange={setTheme} />
+        </Shell>
+      );
+    case 'importar':
+      return (
+        <Shell route={route}>
+          <ImportPage />
+        </Shell>
+      );
   }
-  return <ReferencePage theme={theme} onThemeChange={setTheme} />;
 }

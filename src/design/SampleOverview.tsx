@@ -4,6 +4,7 @@ import { MS_PER_MINUTE, msToDays, msToHours } from '../lib/units.ts';
 import { BarChart } from '../ui/BarChart.tsx';
 import { Figure } from '../ui/Figure.tsx';
 import { RankList } from '../ui/RankList.tsx';
+import { Section } from '../ui/Section.tsx';
 import { SegmentedControl } from '../ui/SegmentedControl.tsx';
 import { DEMO_DATA_END, demoOverview, type DemoPeriod } from './demo-data.ts';
 
@@ -37,26 +38,6 @@ const dateFormat = new Intl.DateTimeFormat('pt-BR', {
 const weekdayFormat = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', timeZone: 'UTC' });
 
 const minutes = (m: number) => `${formatInteger(m)} min`;
-
-function Section({
-  title,
-  caption,
-  children,
-}: {
-  title: string;
-  caption?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="hairline border-t pt-6">
-      <div className="mb-6 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-        <h2 className="text-title-3 font-semibold">{title}</h2>
-        {caption && <p className="text-footnote text-text-2">{caption}</p>}
-      </div>
-      {children}
-    </section>
-  );
-}
 
 export function SampleOverview() {
   const [period, setPeriod] = useState<DemoPeriod>('all');

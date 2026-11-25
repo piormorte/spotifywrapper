@@ -15,15 +15,16 @@ PWA local-first para analisar o histórico musical vitalício a partir dos arqui
 
 ## Scripts
 
-| Comando           | O que faz                                                           |
-| ----------------- | ------------------------------------------------------------------- |
-| `npm run dev`     | Servidor de desenvolvimento em `http://127.0.0.1:5173`              |
-| `npm run build`   | Typecheck + build de produção em `dist/`                            |
-| `npm run preview` | Serve `dist/` com os mesmos headers de produção (`public/_headers`) |
-| `npm test`        | Testes unitários (Vitest)                                           |
-| `npm run e2e`     | Testes end-to-end (Playwright, desktop e mobile)                    |
-| `npm run lint`    | ESLint, incluindo as regras de fronteira entre módulos              |
-| `npm run check`   | Formatação, lint, typecheck, testes e build                         |
+| Comando             | O que faz                                                                |
+| ------------------- | ------------------------------------------------------------------------ |
+| `npm run dev`       | Servidor de desenvolvimento em `http://127.0.0.1:5173`                   |
+| `npm run build`     | Typecheck + build de produção em `dist/`                                 |
+| `npm run preview`   | Serve `dist/` com os mesmos headers de produção (`public/_headers`)      |
+| `npm test`          | Testes unitários (Vitest)                                                |
+| `npm run test:load` | Teste de carga: 520 mil registros sintéticos (importação, busca, backup) |
+| `npm run e2e`       | Testes end-to-end (Playwright, desktop e mobile)                         |
+| `npm run lint`      | ESLint, incluindo as regras de fronteira entre módulos                   |
+| `npm run check`     | Formatação, lint, typecheck, testes e build                              |
 
 ## Deploy (Cloudflare Pages)
 

@@ -18,6 +18,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:load": "LOAD=1 vitest run src/db/import.load.test.ts --reporter=verbose",
     "e2e": "playwright test --trace off",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build"
   },
@@ -27,6 +28,7 @@
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
+    "@sqlite.org/sqlite-wasm": "^3.54.1-build1",
     "d3-scale": "^4.0.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
