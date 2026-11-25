@@ -73,7 +73,7 @@ export function OptionList<T extends string>({
             onClick={() => {
               onChange(o.value);
             }}
-            className={`rounded-control px-3 py-1.5 text-left text-callout transition-colors ${
+            className={`pressable rounded-control px-3 py-1.5 text-left text-callout ${
               isSelected ? 'bg-fill-1 font-medium text-text-1' : 'text-text-2 hover:text-text-1'
             }`}
           >

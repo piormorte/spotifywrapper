@@ -11,6 +11,8 @@ export default defineConfig({
   use: {
     baseURL: `http://127.0.0.1:${port}`,
     trace: 'off',
+    // Tests read final values; motion (count-ups, cascades) is checked in motion.spec.ts.
+    contextOptions: { reducedMotion: 'reduce' },
   },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },

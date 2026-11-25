@@ -41,16 +41,93 @@
   }
 }
 
-@keyframes route-enter {
+@keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(14px) scale(0.985);
   }
 }
 
-/* Screens fade in on navigation; disabled by the reduced-motion rule above. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+/*
+ * Screens enter like an iOS push: the page fades in and its top-level blocks
+ * rise in a short cascade. Everything here is turned off by the
+ * reduced-motion rule above (durations collapse to ~0).
+ */
 .route-enter {
-  animation: route-enter 280ms var(--ease-emphasized) both;
+  animation: fade-in 220ms var(--ease-standard) both;
+}
+.route-enter main > *,
+.route-enter main > div > section,
+.stagger > * {
+  animation: rise 520ms var(--ease-emphasized) both;
+}
+.route-enter main > :nth-child(2),
+.route-enter main > div > section:nth-child(1),
+.stagger > :nth-child(2) {
+  animation-delay: 40ms;
+}
+.route-enter main > :nth-child(3),
+.route-enter main > div > section:nth-child(2),
+.stagger > :nth-child(3) {
+  animation-delay: 80ms;
+}
+.route-enter main > :nth-child(4),
+.route-enter main > div > section:nth-child(3),
+.stagger > :nth-child(4) {
+  animation-delay: 120ms;
+}
+.route-enter main > :nth-child(n + 5),
+.route-enter main > div > section:nth-child(n + 4),
+.stagger > :nth-child(n + 5) {
+  animation-delay: 160ms;
+}
+
+/* Something new on screen (a result, a notice) arrives the same way. */
+.appear {
+  animation: rise 420ms var(--ease-emphasized) both;
+}
+
+/* SVG bars grow from the baseline the first time a chart draws. */
+.bar-grow {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: bar-grow 700ms var(--ease-emphasized) both;
+}
+
+/* Touch feedback: controls give way slightly under the finger, then spring back. */
+.pressable {
+  transition-property: transform, background-color, color, opacity;
+  transition-duration: 380ms, 200ms, 200ms, 200ms;
+  transition-timing-function:
+    var(--ease-spring), var(--ease-standard), var(--ease-standard), var(--ease-standard);
+}
+.pressable:active:not(:disabled) {
+  transform: scale(0.96);
+  transition-duration: 90ms, 200ms, 200ms, 200ms;
+}
+
+/* Translucent bar material (iOS "chrome"); solid where blur is unsupported. */
+.material {
+  background: var(--bg);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .material {
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+  }
 }
 
 @utility numeric {

@@ -58,7 +58,8 @@ export function BarChart({
               width={bar.width}
               height={bar.height}
               rx={Math.min(2, bar.width / 2)}
-              className={`transition-[y,height] duration-500 ease-emphasized ${
+              style={{ animationDelay: `${Math.min(bar.index * 14, 280)}ms` }}
+              className={`bar-grow transition-[y,height] duration-500 ease-emphasized ${
                 bar.index === maxIndex ? 'fill-accent' : 'fill-fill-2'
               }`}
             >

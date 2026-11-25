@@ -11,12 +11,15 @@ import {
   plural,
 } from '../../lib/format.ts';
 import { msToHours } from '../../lib/units.ts';
-import { Button } from '../../ui/Button.tsx';
+import { Button, ExternalLinkButton } from '../../ui/Button.tsx';
 import { Figure } from '../../ui/Figure.tsx';
 import { ProgressBar } from '../../ui/ProgressBar.tsx';
 import { Section } from '../../ui/Section.tsx';
 import { ImportReport } from './ImportReport.tsx';
 import { fileKindLabel } from './labels.ts';
+
+/** Spotify's account privacy page, where the data export is requested. */
+const SPOTIFY_PRIVACY_URL = 'https://www.spotify.com/account/privacy/';
 
 const PHASE_LABEL: Record<ImportProgress['phase'], string> = {
   reading: 'Lendo',
@@ -180,8 +183,10 @@ export function ImportPage() {
       <div className="mt-16 space-y-16">
         <Section title="Adicionar arquivos" caption="Histórico estendido ou dados da conta (.json)">
           <div
-            className={`rounded-control px-6 py-12 text-center transition-colors ${
-              dragging ? 'bg-accent-soft' : 'bg-surface'
+            className={`rounded-control px-6 py-12 text-center transition-[background-color,transform,box-shadow] duration-500 ease-spring ${
+              dragging
+                ? 'scale-[1.015] bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--accent)]'
+                : 'bg-surface'
             }`}
           >
             <p className="text-body font-medium">
@@ -190,14 +195,22 @@ export function ImportPage() {
             <p className="mt-1 text-footnote text-text-2">
               Você pode selecionar vários de uma vez. Importar de novo não duplica nada.
             </p>
-            <Button
-              variant="primary"
-              className="mt-6"
-              disabled={busy || status !== 'ready'}
-              onClick={() => inputRef.current?.click()}
-            >
-              Escolher arquivos
-            </Button>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Button
+                variant="primary"
+                disabled={busy || status !== 'ready'}
+                onClick={() => inputRef.current?.click()}
+              >
+                Escolher arquivos
+              </Button>
+              <ExternalLinkButton href={SPOTIFY_PRIVACY_URL}>
+                Pedir meus dados à Spotify
+              </ExternalLinkButton>
+            </div>
+            <p className="mx-auto mt-4 max-w-[46ch] text-footnote text-text-2">
+              Ainda não tem os arquivos? O botão abre a página de privacidade da sua conta Spotify,
+              onde você pede o histórico estendido.
+            </p>
             <input
               ref={inputRef}
               id="import-files"
@@ -210,7 +223,7 @@ export function ImportPage() {
           </div>
 
           {progress && (
-            <div className="mt-8" aria-live="polite">
+            <div className="appear mt-8" aria-live="polite">
               <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 text-footnote">
                 <span className="min-w-0 truncate text-text-1">
                   {PHASE_LABEL[progress.phase]}
@@ -227,15 +240,15 @@ export function ImportPage() {
           )}
 
           {skipped.length > 0 && (
-            <p className="mt-6 text-footnote text-text-2">
+            <p className="appear mt-6 text-footnote text-text-2">
               Ignorados (não são .json): {skipped.join(', ')}.
               {skipped.some((n) => n.toLowerCase().endsWith('.zip')) &&
                 ' Extraia o .zip e selecione os arquivos JSON de dentro dele.'}
             </p>
           )}
-          {error && <p className="mt-6 text-callout text-critical">{error}</p>}
+          {error && <p className="appear mt-6 text-callout text-critical">{error}</p>}
           {result && (
-            <div className="mt-10">
+            <div className="appear mt-10">
               <ImportReport result={result} />
             </div>
           )}
@@ -243,7 +256,19 @@ export function ImportPage() {
 
         <Section title="Como obter seus arquivos">
           <ol className="max-w-[62ch] list-decimal space-y-2 pl-5 text-callout text-text-2 marker:text-text-3">
-            <li>Na sua conta Spotify, abra Privacidade da conta.</li>
+            <li>
+              Na sua conta Spotify, abra{' '}
+              <a
+                href={SPOTIFY_PRIVACY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-text-1 underline decoration-separator underline-offset-4 hover:decoration-current"
+              >
+                Privacidade da conta
+                <span className="sr-only"> (abre em nova aba)</span>
+              </a>
+              .
+            </li>
             <li>
               Peça o <span className="text-text-1">Histórico de streaming estendido</span>. Ele
               cobre toda a vida da conta e pode levar até 30 dias para chegar por e-mail.

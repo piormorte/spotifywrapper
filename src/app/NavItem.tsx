@@ -1,7 +1,10 @@
 import { MORE_ROUTES, type Destination } from './navigation.ts';
 import type { Route } from './routes.ts';
 
-/** Unbuilt destinations render as plain text — never as controls that do nothing. */
+/**
+ * Unbuilt destinations render as plain text — never as controls that do nothing.
+ * The sidebar's selected background is drawn by the Shell so it can glide.
+ */
 export function NavItem({
   item,
   current,
@@ -28,11 +31,11 @@ export function NavItem({
     <a
       href={`#${item.route}`}
       aria-current={active ? 'page' : undefined}
-      className={`${base} transition-colors ${
+      className={`${base} pressable relative ${
         active
           ? compact
             ? 'font-semibold text-text-1'
-            : 'bg-fill-1 font-medium text-text-1'
+            : 'font-medium text-text-1'
           : 'text-text-2 hover:text-text-1'
       }`}
     >

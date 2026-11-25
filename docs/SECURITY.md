@@ -39,3 +39,9 @@ dispositivo.
   (`docs/PLANNING.md` §2).
 - Se uma integração externa for adicionada, ela exige nova revisão desta tabela e a ampliação
   explícita da CSP.
+
+## Links externos
+
+O único link externo é o botão "Pedir meus dados à Spotify" na tela de importação
+(`https://www.spotify.com/account/privacy/`). Ele abre uma nova aba com `rel="noopener noreferrer"`:
+o app não faz requisição nenhuma, não envia referrer e a nova página não tem acesso à janela do Liner.

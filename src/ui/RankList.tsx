@@ -16,7 +16,7 @@ interface RankListProps {
 /** Ranked rows separated by hairlines; the rank is set in the tertiary color. */
 export function RankList({ label, items }: RankListProps) {
   return (
-    <ol aria-label={label} className="divide-y divide-separator">
+    <ol aria-label={label} className="stagger divide-y divide-separator">
       {items.map((item, index) => (
         <li key={item.key} className="flex items-baseline gap-4 py-3">
           <span className="numeric w-5 shrink-0 text-right text-footnote text-text-3">

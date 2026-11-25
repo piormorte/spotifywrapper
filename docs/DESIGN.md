@@ -85,7 +85,17 @@ O Export Studio (`#exportar`) desenha peças editoriais diretamente em Canvas (`
   - Os controles abreviados no celular têm o rótulo completo como nome acessível.
   - Os gráficos têm título e um valor por barra.
   - Progresso e resultados são anunciados (`aria-live`).
-- **Movimento:**
-  - As telas entram com um fade curto de 280 ms.
-  - As barras dos gráficos animam ao mudar.
-  - Tudo é desligado com `prefers-reduced-motion`.
+- **Movimento:** tudo é desligado com `prefers-reduced-motion` (ver "Movimento e materiais").
+
+## Movimento e materiais (inspirados no iOS, 25/11/2026)
+
+Pedido do responsável: animações e acabamento no estilo iOS, mantendo os princípios acima (sem cards, sem gradientes, um destaque por tela).
+
+- **Entrada das telas:** fade de 220 ms; os blocos principais sobem 14 px em cascata (40 ms entre eles, até 160 ms). Rankings entram linha a linha.
+- **Números:** cada estatística conta de 0 (ou do valor anterior) até o valor final em 900 ms, com desaceleração exponencial. Datas, horários e anos aparecem direto. O último quadro é sempre o texto formatado original (`src/lib/countup.ts`).
+- **Gráficos:** as barras crescem a partir da base na primeira vez e animam ao mudar.
+- **Toque:** botões, itens de navegação e controles cedem para 96% ao toque e voltam com uma mola (`--ease-spring`).
+- **Seleção:** o fundo do item ativo da barra lateral e o marcador do controle segmentado deslizam com mola.
+- **Materiais:** a barra superior e a barra de abas do celular são translúcidas (fundo a 80% com desfoque de 20 px e saturação); onde não há desfoque, ficam sólidas.
+- **Título grande:** no celular, o título da tela aparece centralizado na barra superior quando o h1 sai da vista, e a linha fina da barra só aparece nesse momento.
+- **Link externo:** a tela de importação tem o botão "Pedir meus dados à Spotify", que abre a página de privacidade da conta em nova aba (`noopener noreferrer`). É só navegação: nenhum dado do app vai junto.

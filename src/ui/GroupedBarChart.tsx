@@ -47,7 +47,10 @@ export function GroupedBarChart({
               width={r.width}
               height={r.height}
               rx={Math.min(2, r.width / 2)}
-              className={SERIES_CLASS[Math.min(r.series, SERIES_CLASS.length - 1)]}
+              style={{ animationDelay: `${Math.min(r.index * 14, 280)}ms` }}
+              className={`bar-grow transition-[y,height] duration-500 ease-emphasized ${
+                SERIES_CLASS[Math.min(r.series, SERIES_CLASS.length - 1)] ?? ''
+              }`}
             >
               <title>{`${labels[r.index] ?? ''} · ${seriesNames[r.series] ?? ''}: ${formatValue(r.value)}`}</title>
             </rect>
