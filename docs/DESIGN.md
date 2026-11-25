@@ -21,7 +21,7 @@ Todos os nomes e números exibidos nessas páginas são **fictícios** (`src/des
 | `--fill-1`  | #E8E8ED | #1C1C1E | Controles                                            |
 | `--fill-2`  | #D2D2D7 | #2C2C2E | Séries de gráfico                                    |
 | `--text-1`  | #1D1D1F | #F5F5F7 | Texto primário                                       |
-| `--text-2`  | #6E6E73 | #A1A1A6 | Texto secundário (≥ 5:1)                             |
+| `--text-2`  | #636368 | #A1A1A6 | Texto secundário (≥ 4,5:1 também sobre controles)    |
 | `--text-3`  | #737378 | #7C7C82 | Texto terciário (≥ 4,5:1)                            |
 | `--accent`  | #08784F | #47D7A0 | Destaque: jade próprio, distinto do verde da Spotify |
 
@@ -55,7 +55,16 @@ O tema segue `prefers-color-scheme` e pode ser forçado com `data-theme="light|d
 
 ## Exportações
 
-São peças editoriais desenhadas diretamente em Canvas, com Inter, sem capas (`src/design/StorySpecimen.tsx`). O motor de exportação definitivo é construído na Etapa 7.
+O Export Studio (`#exportar`) desenha peças editoriais diretamente em Canvas (`src/export/`), sem React e sem capturas de tela:
+
+- **Unidade de design:** 1 u = 1 px no lado menor de 1080, de modo que todos os formatos escalam a partir do mesmo desenho.
+- **Formatos:** Stories 1080 × 1920, Quadrado 1080 × 1080, X 1200 × 675, tamanho livre (600–4000 px) e relatório PDF de 4 páginas A4.
+- **Layout:**
+  - Os blocos (número principal, grade de estatísticas, ranking, barras, observações) fluem entre o cabeçalho e o rodapé.
+  - Formatos largos usam duas colunas.
+  - Quando falta espaço, listas anteriores encolhem antes de um bloco posterior ser descartado.
+- **Cor e tipografia:** sempre Inter. Um único destaque: o período, em jade, acima do título. A barra máxima dos gráficos usa a cor do texto, não o destaque.
+- **Sem capas:** a v1 não usa a Web API.
 
 ## Decisões aprovadas (25/11/2026)
 
@@ -63,3 +72,20 @@ São peças editoriais desenhadas diretamente em Canvas, com Inter, sem capas (`
 2. **Idioma da interface:** português, com seções em português ("Visão geral", "Linha do tempo"). "Export Studio" e "Streams" ficam como estão.
 3. **Cor de destaque:** jade #47D7A0 (escuro) / #08784F (claro).
 4. **Direção visual:** a referência (`#referencia`) e a tela de exemplo (`#exemplo`) são a base aprovada.
+
+## Acessibilidade (Etapa 9)
+
+- **Auditoria automática:** todas as telas passam no axe-core com as regras WCAG 2.2 AA, nos temas claro e escuro, em desktop e celular (`tests/e2e/a11y.spec.ts`).
+- **Contraste:** `--text-2` claro passou a #636368 e `--critical` claro a #B80012, para manter 4,5:1 também sobre o fundo dos controles.
+- **Teclado:**
+  - Um botão "Pular para o conteúdo" aparece no primeiro Tab.
+  - Ao trocar de tela, o foco vai para o título (h1) e o título da aba muda.
+  - Controles segmentados e listas de opções usam setas, Home e End, com uma única parada de Tab.
+- **Leitores de tela:**
+  - Os controles abreviados no celular têm o rótulo completo como nome acessível.
+  - Os gráficos têm título e um valor por barra.
+  - Progresso e resultados são anunciados (`aria-live`).
+- **Movimento:**
+  - As telas entram com um fade curto de 280 ms.
+  - As barras dos gráficos animam ao mudar.
+  - Tudo é desligado com `prefers-reduced-motion`.

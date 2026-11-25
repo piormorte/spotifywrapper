@@ -41,6 +41,18 @@
   }
 }
 
+@keyframes route-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Screens fade in on navigation; disabled by the reduced-motion rule above. */
+.route-enter {
+  animation: route-enter 280ms var(--ease-emphasized) both;
+}
+
 @utility numeric {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;

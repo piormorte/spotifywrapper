@@ -20,7 +20,7 @@ export const PRIMARY: readonly Destination[] = [
 ];
 
 export const SECONDARY: readonly Destination[] = [
-  { label: 'Export Studio', short: 'Exportar' },
+  { label: 'Export Studio', short: 'Exportar', route: 'exportar' },
   { label: 'Importar dados', short: 'Importar', route: 'importar' },
   { label: 'Ajustes', short: 'Ajustes', route: 'ajustes' },
 ];
@@ -39,6 +39,7 @@ export const MORE_ROUTES: readonly Route[] = [
   'linha-do-tempo',
   'analises',
   'perfil',
+  'exportar',
   'importar',
   'ajustes',
   'mais',

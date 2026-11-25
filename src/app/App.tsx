@@ -1,28 +1,62 @@
-import { useCallback, useEffect, useState } from 'react';
-import { ReferencePage } from '../design/ReferencePage.tsx';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ImportPage } from '../features/import/ImportPage.tsx';
-import { AnalyticsPage } from '../features/analytics/AnalyticsPage.tsx';
-import { PersonalityPage } from '../features/analytics/PersonalityPage.tsx';
-import { HistoryPage } from '../features/history/HistoryPage.tsx';
 import { OverviewPage } from '../features/overview/OverviewPage.tsx';
-import { RankingsPage } from '../features/rankings/RankingsPage.tsx';
-import { TimelinePage } from '../features/timeline/TimelinePage.tsx';
 import type { PeriodSpec } from '../stats/period.ts';
-import { MorePage } from './MorePage.tsx';
-import { SettingsPage } from '../features/settings/SettingsPage.tsx';
+import { ErrorBoundary } from './ErrorBoundary.tsx';
 import { useLibrary } from './library-context.ts';
+import { MorePage } from './MorePage.tsx';
+import { ROUTE_TITLES } from './route-titles.ts';
 import { parseRoute, type Route } from './routes.ts';
 import { Shell } from './Shell.tsx';
 import { applyTheme, type ThemePreference } from './theme.ts';
 
+// Screens beyond the first visit load on demand (all are precached for offline use).
+const HistoryPage = lazy(() =>
+  import('../features/history/HistoryPage.tsx').then((m) => ({ default: m.HistoryPage })),
+);
+const RankingsPage = lazy(() =>
+  import('../features/rankings/RankingsPage.tsx').then((m) => ({ default: m.RankingsPage })),
+);
+const TimelinePage = lazy(() =>
+  import('../features/timeline/TimelinePage.tsx').then((m) => ({ default: m.TimelinePage })),
+);
+const AnalyticsPage = lazy(() =>
+  import('../features/analytics/AnalyticsPage.tsx').then((m) => ({ default: m.AnalyticsPage })),
+);
+const PersonalityPage = lazy(() =>
+  import('../features/analytics/PersonalityPage.tsx').then((m) => ({
+    default: m.PersonalityPage,
+  })),
+);
+const ExportStudioPage = lazy(() =>
+  import('../features/export/ExportStudioPage.tsx').then((m) => ({
+    default: m.ExportStudioPage,
+  })),
+);
+const SettingsPage = lazy(() =>
+  import('../features/settings/SettingsPage.tsx').then((m) => ({ default: m.SettingsPage })),
+);
+const ReferencePage = lazy(() =>
+  import('../design/ReferencePage.tsx').then((m) => ({ default: m.ReferencePage })),
+);
+
 const THEMES: readonly ThemePreference[] = ['system', 'light', 'dark'];
+
+function Loading() {
+  return (
+    <p aria-live="polite" className="px-4 pt-14 text-callout text-text-2 sm:px-8 lg:px-14">
+      Carregando…
+    </p>
+  );
+}
 
 export function App() {
   const { client, status } = useLibrary();
   const [route, setRoute] = useState<Route>(() => parseRoute(window.location.hash));
   const [theme, setThemeState] = useState<ThemePreference>('system');
-  // The period is shared by the overview and the rankings.
+  // The period is shared by the overview, rankings, timeline, analytics and exports.
   const [period, setPeriod] = useState<PeriodSpec>({ preset: 'all' });
+  const firstRoute = useRef(true);
 
   useEffect(() => {
     const onHashChange = () => {
@@ -34,6 +68,27 @@ export function App() {
       window.removeEventListener('hashchange', onHashChange);
     };
   }, []);
+
+  // Title per screen; after navigation, move focus to the new heading so
+  // keyboard and screen-reader users land on the content.
+  useEffect(() => {
+    document.title = `${ROUTE_TITLES[route]} · Liner`;
+    if (firstRoute.current) {
+      firstRoute.current = false;
+      return;
+    }
+    let tries = 0;
+    const focusHeading = () => {
+      const heading = document.querySelector<HTMLElement>('main h1');
+      if (heading) {
+        heading.tabIndex = -1;
+        heading.focus({ preventScroll: true });
+      } else if (tries++ < 20) {
+        requestAnimationFrame(focusHeading);
+      }
+    };
+    requestAnimationFrame(focusHeading);
+  }, [route]);
 
   // The theme preference is stored in the local database, not browser storage.
   useEffect(() => {
@@ -61,26 +116,39 @@ export function App() {
     [client],
   );
 
-  if (route === 'referencia') return <ReferencePage theme={theme} onThemeChange={setTheme} />;
+  const screen = (node: ReactNode) => (
+    <ErrorBoundary key={route}>
+      <Suspense fallback={<Loading />}>
+        <div className="route-enter">{node}</div>
+      </Suspense>
+    </ErrorBoundary>
+  );
+
+  if (route === 'referencia') {
+    return screen(<ReferencePage theme={theme} onThemeChange={setTheme} />);
+  }
 
   const page = (() => {
+    const periodProps = { period, onPeriodChange: setPeriod };
     switch (route) {
       case 'visao-geral':
-        return <OverviewPage period={period} onPeriodChange={setPeriod} />;
+        return <OverviewPage {...periodProps} />;
       case 'historico':
         return <HistoryPage />;
       case 'faixas':
-        return <RankingsPage kind="tracks" period={period} onPeriodChange={setPeriod} />;
+        return <RankingsPage kind="tracks" {...periodProps} />;
       case 'artistas':
-        return <RankingsPage kind="artists" period={period} onPeriodChange={setPeriod} />;
+        return <RankingsPage kind="artists" {...periodProps} />;
       case 'albuns':
-        return <RankingsPage kind="albums" period={period} onPeriodChange={setPeriod} />;
+        return <RankingsPage kind="albums" {...periodProps} />;
       case 'linha-do-tempo':
-        return <TimelinePage period={period} onPeriodChange={setPeriod} />;
+        return <TimelinePage {...periodProps} />;
       case 'analises':
-        return <AnalyticsPage period={period} onPeriodChange={setPeriod} />;
+        return <AnalyticsPage {...periodProps} />;
       case 'perfil':
-        return <PersonalityPage period={period} onPeriodChange={setPeriod} />;
+        return <PersonalityPage {...periodProps} />;
+      case 'exportar':
+        return <ExportStudioPage {...periodProps} />;
       case 'importar':
         return <ImportPage />;
       case 'ajustes':
@@ -90,5 +158,5 @@ export function App() {
     }
   })();
 
-  return <Shell route={route}>{page}</Shell>;
+  return <Shell route={route}>{screen(page)}</Shell>;
 }

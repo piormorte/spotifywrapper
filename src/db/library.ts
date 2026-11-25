@@ -16,6 +16,7 @@ import {
 } from './queries.ts';
 import { isValidTimeZone, toLocalMs } from '../lib/time.ts';
 import { analytics, fadedArtists, type Analytics, type FadedArtist } from '../stats/analytics.ts';
+import type { ExportBundle } from '../export/types.ts';
 import { overview, type Overview } from '../stats/overview.ts';
 import {
   albumTopTracks,
@@ -190,6 +191,23 @@ export class Library {
   personality(spec: PeriodSpec): { analytics: Analytics; observations: Observation[] } | null {
     const a = analytics(this.db, spec);
     return a ? { analytics: a, observations: personality(a, yearlyTotals(this.db)) } : null;
+  }
+
+  /** Everything an export piece may show for a period (top lists of 10). */
+  exportBundle(spec: PeriodSpec): ExportBundle | null {
+    const o = overview(this.db, spec);
+    const a = analytics(this.db, spec);
+    if (!o || !a) return null;
+    const top = (kind: 'tracks' | 'artists' | 'albums') =>
+      ranking(this.db, { kind, period: spec, sort: 'streams', limit: 10 })?.rows ?? [];
+    return {
+      overview: o,
+      analytics: a,
+      observations: personality(a, yearlyTotals(this.db)),
+      topArtists: top('artists'),
+      topTracks: top('tracks'),
+      topAlbums: top('albums'),
+    };
   }
 
   fadedArtists(): FadedArtist[] {

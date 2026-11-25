@@ -6,6 +6,9 @@ PWA local-first para analisar o histórico musical vitalício a partir dos arqui
 - Todo o processamento acontece no dispositivo. Nenhum dado sai do navegador.
 - A v1 não faz nenhuma requisição externa: sem OAuth, sem Spotify Web API, sem busca de imagens.
 - Planejamento, decisões e base de conformidade: [`docs/PLANNING.md`](docs/PLANNING.md).
+- Definições de todas as métricas: [`docs/METRICS.md`](docs/METRICS.md).
+- Design system e acessibilidade: [`docs/DESIGN.md`](docs/DESIGN.md).
+- Segurança e privacidade: [`docs/SECURITY.md`](docs/SECURITY.md).
 
 > Projeto independente, sem afiliação com a Spotify.
 
@@ -36,6 +39,14 @@ Conecte o repositório no painel do Cloudflare Pages com:
 
 Os headers de segurança (CSP com `connect-src 'self'`) são aplicados por `public/_headers`.
 Sem um `404.html`, o Pages serve `index.html` em rotas desconhecidas (modo SPA).
+
+## PWA
+
+- `vite-plugin-pwa` gera o manifest e o service worker (`generateSW`).
+- O service worker guarda **apenas os arquivos do app**: HTML, JS, CSS, WASM, fontes e ícones. Não há cache em tempo de execução, e os dados de escuta ficam no OPFS, nunca no Cache Storage.
+- Novas versões aparecem como um aviso "Atualizar". O app não recarrega sozinho.
+- Ícones: edite `public/icons/icon.svg` e `icon-maskable.svg` e rode `node scripts/generate-icons.mjs`.
+- `public/_headers` desativa cache longo para `sw.js` e o manifest e marca `/assets/*` como imutável.
 
 ## Privacidade
 
