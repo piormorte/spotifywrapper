@@ -263,7 +263,7 @@ export function ExportStudioPage({
   const usesAppPeriod = !['wrapped', 'year', 'monthly'].includes(template);
 
   return (
-    <main className="mx-auto max-w-[1180px] px-4 pt-8 pb-16 sm:px-8 lg:px-14 lg:pt-14">
+    <main className="mx-auto max-w-[1240px] px-4 pt-6 pb-20 sm:px-6 lg:px-10 lg:pt-8">
       <h1 className="font-display text-display font-semibold">Export Studio</h1>
       <p className="mt-2 max-w-[60ch] text-callout text-text-2">
         Peças desenhadas a partir das suas estatísticas, prontas para compartilhar. Geradas neste

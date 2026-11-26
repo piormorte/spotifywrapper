@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Analytics } from './analytics.ts';
-import { personality } from './personality.ts';
+import { identityTraits, joinPhrases, personality } from './personality.ts';
 import type { YearTotal } from './timeline.ts';
 
 const D = 86_400_000;
@@ -125,5 +125,54 @@ describe('personality observations', () => {
     expect(
       personality(base({ diversity: { artists: 0, evenness: 0, effectiveArtists: 0 } }), []),
     ).toEqual([]);
+  });
+});
+
+describe('identity traits', () => {
+  it('picks one clause per rule, each with its basis', () => {
+    const traits = identityTraits(base());
+    expect(traits.map((t) => t.phrase)).toEqual([
+      'noites de música',
+      'fidelidade a poucos artistas',
+      'faixas no repeat',
+    ]);
+    expect(traits[0]?.basis).toBe('50% do tempo ouvido à noite');
+    expect(joinPhrases(traits.map((t) => t.phrase))).toBe(
+      'noites de música, fidelidade a poucos artistas e faixas no repeat',
+    );
+  });
+
+  it('falls back to spread repertoire and low repetition', () => {
+    const traits = identityTraits(
+      base({
+        dayparts: { night: 0.4, morning: 0.2, afternoon: 0.2, evening: 0.2 },
+        loyalty: { topArtist: 'X', top1Share: 0.1, top5Share: 0.3 },
+        streamsPerTrack: 2,
+      }),
+    );
+    expect(traits.map((t) => t.phrase)).toEqual([
+      'madrugadas acordadas',
+      'um repertório espalhado',
+      'pouca repetição',
+    ]);
+  });
+
+  it('mentions discovery only when the period starts after the first data day', () => {
+    const later = base({
+      streamsPerTrack: 2,
+      dataFirstDay: '2023-01-01',
+      discovery: { ...base().discovery, newArtistShare: 0.4 },
+    });
+    expect(identityTraits(later)[2]?.phrase).toBe('muita descoberta');
+    expect(identityTraits({ ...later, dataFirstDay: '2024-01-01' })[2]?.phrase).toBe(
+      'pouca repetição',
+    );
+  });
+
+  it('is empty without streams', () => {
+    expect(
+      identityTraits(base({ diversity: { artists: 0, evenness: 0, effectiveArtists: 0 } })),
+    ).toEqual([]);
+    expect(joinPhrases(['a'])).toBe('a');
   });
 });

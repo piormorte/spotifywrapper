@@ -123,7 +123,7 @@ export function ImportPage() {
 
   return (
     <main
-      className="mx-auto max-w-[880px] px-4 pt-8 pb-16 sm:px-8 lg:px-14 lg:pt-14"
+      className="mx-auto max-w-[920px] px-4 pt-6 pb-20 sm:px-6 lg:px-10 lg:pt-8"
       onDragOver={(e) => {
         e.preventDefault();
         if (!busy) setDragging(true);

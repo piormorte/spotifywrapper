@@ -23,6 +23,8 @@ export interface RankedEntry {
   readonly name: string;
   /** Artist, for tracks and albums. */
   readonly artist: string | null;
+  /** Album, for tracks (null when the export has none). */
+  readonly album: string | null;
   readonly streams: number;
   readonly registeredPlays: number;
   readonly msPlayed: number;
@@ -60,6 +62,8 @@ export interface Overview {
 }
 
 const TOP_LIMIT = 5;
+/** Albums get a longer list: the overview shows them as a cover grid. */
+export const TOP_ALBUMS_LIMIT = 10;
 
 /** Candidates fetched before name tie-breaking; ties beyond this are not realistic. */
 const CANDIDATES = 50;
@@ -69,6 +73,7 @@ function ranked(
   groupColumn: 'track_id' | 'artist_id' | 'album_id',
   select: string,
   join: string,
+  limit = TOP_LIMIT,
 ): RankedEntry[] {
   return db
     .selectObjects(
@@ -81,12 +86,13 @@ function ranked(
              LIMIT ${CANDIDATES}) AS g
        ${join}
        ORDER BY g.streams DESC, g.ms DESC, name COLLATE NOCASE ASC
-       LIMIT ${TOP_LIMIT}`,
+       LIMIT ${String(limit)}`,
     )
     .map((r) => ({
       id: Number(r['id']),
       name: typeof r['name'] === 'string' ? r['name'] : '',
       artist: typeof r['artist'] === 'string' ? r['artist'] : null,
+      album: typeof r['album'] === 'string' ? r['album'] : null,
       streams: Number(r['streams']),
       registeredPlays: Number(r['registered']),
       msPlayed: Number(r['ms']),
@@ -161,14 +167,16 @@ export function overview(db: Database, spec: PeriodSpec): Overview | null {
       topTracks: ranked(
         db,
         'track_id',
-        't.name AS name, a.name AS artist',
-        'JOIN tracks t ON t.id = g.id JOIN artists a ON a.id = t.artist_id',
+        't.name AS name, a.name AS artist, al.name AS album',
+        `JOIN tracks t ON t.id = g.id JOIN artists a ON a.id = t.artist_id
+         LEFT JOIN albums al ON al.id = t.album_id`,
       ),
       topAlbums: ranked(
         db,
         'album_id',
         'al.name AS name, a.name AS artist',
         'JOIN albums al ON al.id = g.id JOIN artists a ON a.id = al.artist_id',
+        TOP_ALBUMS_LIMIT,
       ),
       peakDay,
       series: [...buckets].map(([key, ms]) => ({ key, msPlayed: ms })),

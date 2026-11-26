@@ -3,6 +3,7 @@ import { THRESHOLDS } from '../../stats/personality.ts';
 import { formatPercent } from '../../lib/format.ts';
 import { EmptyLibrary, PageHeader } from './PageHeader.tsx';
 import { usePeriodQuery } from './usePeriodQuery.ts';
+import { ScreenSkeleton } from '../../ui/Skeleton.tsx';
 
 export function PersonalityPage({
   period,
@@ -15,7 +16,7 @@ export function PersonalityPage({
   const data = state.status === 'ready' ? state.data : null;
 
   return (
-    <main className="mx-auto max-w-[880px] px-4 pt-8 pb-16 sm:px-8 lg:px-14 lg:pt-14">
+    <main className="mx-auto max-w-[1120px] px-4 pt-6 pb-20 sm:px-6 lg:px-10 lg:pt-8">
       <PageHeader
         title="Perfil de escuta"
         intro="Observações geradas a partir dos seus números, com a base de cada uma. Descrevem os dados; não são diagnósticos sobre você."
@@ -23,11 +24,7 @@ export function PersonalityPage({
         period={period}
         onPeriodChange={onPeriodChange}
       />
-      {state.status === 'loading' && (
-        <p aria-live="polite" className="mt-16 text-callout text-text-2">
-          Calculando o perfil…
-        </p>
-      )}
+      {state.status === 'loading' && <ScreenSkeleton label="Calculando o perfil…" />}
       {state.status === 'empty' && <EmptyLibrary />}
       {state.status === 'error' && (
         <p role="alert" className="mt-16 text-callout text-critical">
@@ -37,11 +34,11 @@ export function PersonalityPage({
       {data && (
         <>
           {data.observations.length === 0 ? (
-            <p className="mt-16 text-callout text-text-2">Sem streams no período.</p>
+            <p className="card p-6 text-callout text-text-2">Sem streams no período.</p>
           ) : (
-            <ol aria-label="Observações" className="mt-16 divide-y divide-separator">
-              {data.observations.map((o) => (
-                <li key={o.id} className="py-8 first:pt-0">
+            <ol aria-label="Observações" className="grid gap-3 sm:gap-4 md:grid-cols-2">
+              {data.observations.map((o, i) => (
+                <li key={o.id} className="card enter p-6 sm:p-7" style={{ ['--i' as string]: i }}>
                   <h2 className="font-display text-title-2 font-semibold">{o.title}</h2>
                   <p className="mt-2 max-w-[60ch] text-body">{o.text}</p>
                   <p className="mt-2 text-footnote text-text-3">{o.basis}</p>
@@ -49,7 +46,7 @@ export function PersonalityPage({
               ))}
             </ol>
           )}
-          <section className="hairline mt-12 border-t pt-6 text-footnote text-text-3">
+          <section className="mt-12 px-1 text-footnote text-text-3">
             <h2 className="eyebrow mb-3">Sobre estas observações</h2>
             <ul className="max-w-[64ch] space-y-1.5">
               <li>

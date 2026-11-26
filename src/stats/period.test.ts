@@ -5,6 +5,7 @@ import {
   dayKey,
   granularityFor,
   parseDayKey,
+  previousPeriod,
   resolvePeriod,
 } from './period.ts';
 
@@ -111,5 +112,36 @@ describe('weeks', () => {
       '2024-03-11',
       '2024-03-18',
     ]);
+  });
+});
+
+describe('previousPeriod', () => {
+  it('returns the same-length window just before the period', () => {
+    const p = resolvePeriod({ preset: '30d' }, range);
+    expect(p && previousPeriod(p, '2016-05-10')).toEqual({
+      preset: 'custom',
+      start: '2024-01-16',
+      end: '2024-02-14',
+    });
+    const custom = resolvePeriod(
+      { preset: 'custom', start: '2020-03-01', end: '2020-03-01' },
+      range,
+    );
+    expect(custom && previousPeriod(custom, '2016-05-10')).toEqual({
+      preset: 'custom',
+      start: '2020-02-29',
+      end: '2020-02-29',
+    });
+  });
+
+  it('is null when the data does not cover the whole previous window', () => {
+    const all = resolvePeriod({ preset: 'all' }, range);
+    expect(all && previousPeriod(all, '2016-05-10')).toBeNull();
+    const early = resolvePeriod(
+      { preset: 'custom', start: '2016-05-15', end: '2016-05-29' },
+      range,
+    );
+    expect(early && previousPeriod(early, '2016-05-10')).toBeNull();
+    expect(early && previousPeriod(early, 'nope')).toBeNull();
   });
 });

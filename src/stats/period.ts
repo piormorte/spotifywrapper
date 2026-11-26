@@ -160,3 +160,17 @@ export function bucketKeysBetween(from: number, to: number, granularity: Granula
 export function bucketKeys(period: ResolvedPeriod): string[] {
   return bucketKeysBetween(period.from, period.to, period.granularity);
 }
+
+/**
+ * The window of the same length that ends where `period` starts, as a custom
+ * spec, for "vs. período anterior" comparisons. Null when that window would
+ * begin before the first day with data: a partially covered window would make
+ * any comparison misleading.
+ */
+export function previousPeriod(period: ResolvedPeriod, dataFirstDay: string): PeriodSpec | null {
+  const first = parseDayKey(dataFirstDay);
+  if (first === null) return null;
+  const from = period.from - period.days * MS_PER_DAY;
+  if (from < first) return null;
+  return { preset: 'custom', start: dayKey(from), end: dayKey(period.from - MS_PER_DAY) };
+}

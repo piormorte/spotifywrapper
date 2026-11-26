@@ -39,7 +39,7 @@ function Grid({ children }: { children: React.ReactNode }) {
 function Content({ a, faded }: { a: Analytics; faded: FadedArtist[] }) {
   const longest = a.sessions.longest;
   return (
-    <div className="mt-16 space-y-20">
+    <div className="mt-2 space-y-12">
       <Section title="Constância">
         <Grid>
           <Figure
@@ -247,7 +247,7 @@ export function AnalyticsPage({
   }, [client, status, summary]);
 
   return (
-    <main className="mx-auto max-w-[1080px] px-4 pt-8 pb-16 sm:px-8 lg:px-14 lg:pt-14">
+    <main className="mx-auto max-w-[1120px] px-4 pt-6 pb-20 sm:px-6 lg:px-10 lg:pt-8">
       <PageHeader
         title="Análises"
         data={state.status === 'ready' ? state.data : null}

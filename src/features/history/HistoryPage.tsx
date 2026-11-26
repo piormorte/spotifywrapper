@@ -123,7 +123,7 @@ export function HistoryPage() {
   };
 
   return (
-    <main className="mx-auto max-w-[880px] px-4 pt-8 pb-16 sm:px-8 lg:px-14 lg:pt-14">
+    <main className="mx-auto max-w-[920px] px-4 pt-6 pb-20 sm:px-6 lg:px-10 lg:pt-8">
       <h1 className="font-display text-display font-semibold">Histórico</h1>
       <p className="mt-2 text-callout text-text-2">
         Cada reprodução registrada, da mais recente para a mais antiga.

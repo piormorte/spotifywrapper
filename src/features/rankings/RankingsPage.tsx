@@ -10,6 +10,7 @@ import type {
   RankingSort,
 } from '../../stats/rankings.ts';
 import { Button } from '../../ui/Button.tsx';
+import { Cover } from '../../ui/Cover.tsx';
 import { SegmentedControl } from '../../ui/SegmentedControl.tsx';
 import { PeriodPicker } from '../overview/PeriodPicker.tsx';
 
@@ -104,9 +105,14 @@ function Row({
         : formatDuration(row.msPlayed);
 
   return (
-    <li className="py-3">
-      <div className="grid grid-cols-[2.25rem_minmax(0,1fr)_auto] items-baseline gap-x-3 md:grid-cols-[2.5rem_minmax(0,1fr)_6rem_7rem_6rem_7rem_7rem]">
+    <li className="rounded-tile px-2 py-2 transition-colors hover:bg-fill-1/50">
+      <div className="grid grid-cols-[1.75rem_2.75rem_minmax(0,1fr)_auto] items-center gap-x-3 md:grid-cols-[2rem_2.75rem_minmax(0,1fr)_6rem_7rem_6rem_7rem_7rem]">
         <span className="numeric text-right text-footnote text-text-3">{row.rank}</span>
+        <Cover
+          name={kind === 'tracks' ? (row.album ?? row.name) : row.name}
+          shape={kind === 'artists' ? 'circle' : 'square'}
+          className="size-11"
+        />
         <span className="min-w-0">
           <span className="block truncate text-callout font-medium">{row.name}</span>
           <span className="block truncate text-footnote text-text-2">{subtitle}</span>
@@ -142,7 +148,7 @@ function Row({
         </span>
       </div>
       {open && (
-        <div className="mt-2 pl-[2.25rem] md:pl-[2.5rem]">
+        <div className="mt-2 pl-[5.25rem] md:pl-[5.5rem]">
           <AlbumTracks albumId={row.id} period={period} />
         </div>
       )}
@@ -191,7 +197,8 @@ export function RankingsPage({
 
   const [one, many] = NOUN[kind];
   const header = (
-    <div className="hidden grid-cols-[2.5rem_minmax(0,1fr)_6rem_7rem_6rem_7rem_7rem] gap-x-3 pb-2 md:grid">
+    <div className="hairline mb-1 hidden grid-cols-[2rem_2.75rem_minmax(0,1fr)_6rem_7rem_6rem_7rem_7rem] gap-x-3 border-b px-2 pb-3 md:grid">
+      <span />
       <span />
       <span className="eyebrow">
         {kind === 'tracks' ? 'Faixa' : kind === 'artists' ? 'Artista' : 'Álbum'}
@@ -205,8 +212,8 @@ export function RankingsPage({
   );
 
   return (
-    <main className="mx-auto max-w-[1080px] px-4 pt-8 pb-16 sm:px-8 lg:px-14 lg:pt-14">
-      <header className="flex flex-wrap items-end justify-between gap-6">
+    <main className="mx-auto max-w-[1120px] px-4 pt-6 pb-20 sm:px-6 lg:px-10 lg:pt-8">
+      <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5 pb-8">
         <div>
           <h1 className="font-display text-display font-semibold">{TITLE[kind]}</h1>
           {data && state === 'ready' && (
@@ -242,7 +249,7 @@ export function RankingsPage({
 
       {state === 'ready' && data && (
         <>
-          <div className="mt-12 flex flex-wrap items-center gap-3">
+          <div className="mt-2 flex flex-wrap items-center gap-3">
             <SegmentedControl
               label="Quantidade"
               segments={LIMITS}
@@ -257,19 +264,19 @@ export function RankingsPage({
             />
           </div>
 
-          <div className="hairline mt-8 border-t pt-4">
+          <div className="card mt-6 p-3 sm:p-4">
             {header}
             {data.rows.length === 0 ? (
               <p className="py-6 text-callout text-text-2">Nenhuma reprodução no período.</p>
             ) : (
-              <ol aria-label={`Ranking de ${many}`} className="divide-y divide-separator">
+              <ol aria-label={`Ranking de ${many}`} className="fade">
                 {data.rows.slice(0, shown).map((row) => (
                   <Row key={row.id} row={row} kind={kind} sort={sort} period={period} />
                 ))}
               </ol>
             )}
             {data.rows.length > shown && (
-              <div className="mt-6 flex items-center gap-4">
+              <div className="mt-4 flex items-center gap-4 px-2 pb-2">
                 <Button
                   onClick={() => {
                     setShown((n) => n + PAGE);
