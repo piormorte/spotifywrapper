@@ -6,12 +6,12 @@
   "name": "spotifywrapper",
   "compatibility_date": "2025-09-01",
   "workers_dev": true,
-  // Pull requests get a preview link (wrangler versions upload) to review changes.
+  // Pull requests get a preview link to review changes before merging.
   "preview_urls": true,
+  // Required by `wrangler preview`, which Cloudflare runs for non-production branches.
+  "previews": {},
   // No Workers Logs: the app collects no telemetry (docs/SECURITY.md).
   "observability": { "enabled": false },
-  // Wrangler builds the app itself, so the dashboard needs no build command.
-  "build": { "command": "npm run build" },
   "assets": {
     "directory": "./dist",
     // Hash routing means every real path exists; unknown paths serve index.html.

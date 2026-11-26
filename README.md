@@ -35,8 +35,9 @@ O app é publicado como **Worker com arquivos estáticos** (`wrangler.jsonc`): n
 
 Configuração do projeto no Cloudflare (Workers & Pages → conectar o repositório):
 
-- **Build command:** vazio — o `wrangler.jsonc` já roda `npm run build` antes de publicar
+- **Build command:** `npm run build`
 - **Deploy command:** `npx wrangler deploy`
+- **Branches que não são de produção:** o Cloudflare roda `npx wrangler preview`, que exige o bloco `previews` em `wrangler.jsonc` e gera um link de prévia por PR
 - **Root directory:** `/`
 - O `name` em `wrangler.jsonc` precisa ser igual ao nome do Worker no painel (hoje: `spotifywrapper`).
 
