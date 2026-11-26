@@ -18,7 +18,7 @@ const VALUE_SIZE = {
   title: 'text-title-1 font-light',
 } as const;
 
-/** A statistic presented typographically: label, number, unit, note. No container. */
+/** A statistic presented typographically: label, number, unit, note. */
 export function Figure({ label, value, unit, note, size = 'title' }: FigureProps) {
   return (
     <div className="min-w-0">

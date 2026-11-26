@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, useState, type PointerEvent } from 'react';
 import { indexOfMax, layoutBars } from '../charts/bars.ts';
 import { useElementWidth } from './useElementWidth.ts';
 
@@ -18,8 +18,9 @@ interface BarChartProps {
 const LABEL_SPACE = 22;
 
 /**
- * Single-series bar chart: no gridlines, no axis lines, sparse labels.
- * Geometry comes from charts/bars.ts so Canvas exports match exactly.
+ * Single-series bar chart: no gridlines, no axis lines, sparse labels, a
+ * quiet tooltip on hover. Geometry comes from charts/bars.ts so Canvas
+ * exports match exactly.
  */
 export function BarChart({
   title,
@@ -32,6 +33,7 @@ export function BarChart({
 }: BarChartProps) {
   const titleId = useId();
   const [ref, width] = useElementWidth<HTMLDivElement>();
+  const [hover, setHover] = useState<number | null>(null);
   const plotHeight = height - LABEL_SPACE;
   const bars =
     width > 0
@@ -39,16 +41,35 @@ export function BarChart({
           values,
           width,
           height: plotHeight,
-          padding: values.length <= 12 ? 0.55 : 0.32,
+          padding: values.length <= 12 ? 0.5 : 0.28,
           minVisibleHeight: 2,
         })
       : [];
   const maxIndex = highlightMax ? indexOfMax(values) : -1;
 
+  const onPointerMove = (event: PointerEvent<SVGSVGElement>) => {
+    if (bars.length === 0) return;
+    const x = event.clientX - event.currentTarget.getBoundingClientRect().left;
+    const step = width / bars.length;
+    setHover(Math.min(bars.length - 1, Math.max(0, Math.floor(x / step))));
+  };
+
+  const hovered = hover === null ? undefined : bars[hover];
+
   return (
-    <div ref={ref} className="w-full" style={{ height }}>
+    <div ref={ref} className="relative w-full" style={{ height }}>
       {width > 0 && (
-        <svg role="img" aria-labelledby={titleId} width={width} height={height} className="block">
+        <svg
+          role="img"
+          aria-labelledby={titleId}
+          width={width}
+          height={height}
+          className="block touch-pan-y"
+          onPointerMove={onPointerMove}
+          onPointerLeave={() => {
+            setHover(null);
+          }}
+        >
           <title id={titleId}>{title}</title>
           {bars.map((bar) => (
             <rect
@@ -57,10 +78,10 @@ export function BarChart({
               y={bar.y}
               width={bar.width}
               height={bar.height}
-              rx={Math.min(2, bar.width / 2)}
-              className={`transition-[y,height] duration-500 ease-emphasized ${
+              rx={Math.min(3, bar.width / 2)}
+              className={`motion-move transition-[y,height,fill,opacity] duration-500 ease-emphasized ${
                 bar.index === maxIndex ? 'fill-accent' : 'fill-fill-2'
-              }`}
+              } ${hover !== null && hover !== bar.index ? 'opacity-55' : 'opacity-100'}`}
             >
               <title>{`${labels[bar.index] ?? ''}: ${formatValue(bar.value)}`}</title>
             </rect>
@@ -87,6 +108,19 @@ export function BarChart({
             ) : null,
           )}
         </svg>
+      )}
+      {hovered && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-tile bg-surface-2 px-2.5 py-1.5 text-footnote whitespace-nowrap shadow-raised"
+          style={{
+            left: Math.min(Math.max(hovered.x + hovered.width / 2, 56), width - 56),
+            top: Math.max(hovered.y - 8, 40),
+          }}
+        >
+          <span className="block text-caption text-text-3">{labels[hovered.index]}</span>
+          <span className="numeric font-medium text-text-1">{formatValue(hovered.value)}</span>
+        </div>
       )}
     </div>
   );
