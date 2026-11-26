@@ -5,6 +5,8 @@ test.use({ timezoneId: 'America/Sao_Paulo' });
 
 const ROUTES = [
   'visao-geral',
+  'sua-musica',
+  'retrospectiva',
   'historico',
   'faixas',
   'artistas',

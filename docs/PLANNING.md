@@ -4,7 +4,7 @@ Revisão 3 · 25/11/2026 · Direção aprovada: **v1 local-first, sem Spotify We
 
 > Nome do produto: **Liner** (aprovado na Etapa 1). Ele não contém "Spotify" (ver §2.4).
 > O nome do repositório (`spotifywrapper`) é provisório.
-> Etapa 1 aprovada em 25/11/2026: ver `docs/DESIGN.md`.
+> Etapa 1 aprovada em 25/11/2026; redesign premium (Etapa 2) pedido pelo dono em 26/11/2026: ver `docs/DESIGN.md`.
 
 ---
 
@@ -93,7 +93,7 @@ São os arquivos `StreamingHistory_music_*.json` e `StreamingHistory_podcast_*.j
 
 | Ausência                              | Como o app lida                                                                                         |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Capas e imagens                       | Identidade **tipográfica**. Sem placeholders decorativos                                                |
+| Capas e imagens                       | Arte **tipográfica gerada a partir do nome** (determinística, nunca imita uma capa real; 26/11/2026)    |
 | Gêneros                               | A seção de gêneros não existe na v1. Nenhuma métrica depende de gênero                                  |
 | Duração da faixa                      | Não é necessária: completa ou interrompida é definida por `reason_end` (§4)                             |
 | ID de artista e participações         | Artista identificado pelo nome normalizado (o histórico só traz o artista principal)                    |
