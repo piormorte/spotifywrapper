@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
+import { useCountUpText } from './useCountUpText.ts';
 
 interface StatTileProps {
   /** What the number measures. */
@@ -55,6 +56,8 @@ export function StatTile({
   className = '',
   style,
 }: StatTileProps) {
+  // Names never parse as numbers, so textual values show as they are.
+  const shown = useCountUpText(value);
   return (
     <div
       className={`card enter relative flex min-w-0 flex-col overflow-hidden p-5 sm:p-6 ${className}`}
@@ -70,7 +73,7 @@ export function StatTile({
           <span
             className={`font-display ${textual ? `${TEXTUAL[size]} line-clamp-2 [overflow-wrap:anywhere]` : `numeric ${VALUE[size]}`}`}
           >
-            {value}
+            {shown}
           </span>
           {unit && <span className="ml-1.5 text-callout text-text-2">{unit}</span>}
         </span>

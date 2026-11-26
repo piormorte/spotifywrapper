@@ -74,6 +74,9 @@ e pode ser forçado em Ajustes (`data-theme` em `<html>`).
   controle segmentado, barras), `--ease-standard` em cor e opacidade (200 ms).
 - **Entradas:** `.route-enter` na troca de tela; `.enter` com `--i` para escalonar cartões e
   listas (55 ms por item); `.fade` para conteúdo que chega depois.
+- **Números:** as estatísticas contam até o valor final (900 ms, desaceleração exponencial,
+  `src/lib/countup.ts`); datas, horários e anos aparecem direto, e o último quadro é sempre o
+  texto original.
 - **Hover:** cartões interativos sobem 2 px e ganham `shadow-raised`; gráficos mostram tooltip.
 - **Carregamento:** esqueletos com brilho suave (`.skeleton`, `ScreenSkeleton`).
 - **Movimento reduzido** (`prefers-reduced-motion`, por exemplo "Efeitos de animação" desligado

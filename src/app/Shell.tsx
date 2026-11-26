@@ -96,12 +96,19 @@ function TopBar({
         scrolled ? 'shadow-[0_1px_0_var(--separator)]' : ''
       }`}
     >
-      <a href="#visao-geral" aria-label="Liner" className="md:hidden">
-        <Wordmark className="text-callout" />
-      </a>
-      <div className="relative hidden h-10 min-w-0 flex-1 md:block">
+      <div className="relative h-10 min-w-0 flex-1">
+        {/* Phones: the wordmark gives way to the screen title once the large title scrolls off. */}
+        <a
+          href="#visao-geral"
+          aria-label="Liner"
+          className={`absolute inset-y-0 left-0 flex items-center transition-opacity duration-200 md:hidden ${
+            scrolled ? 'pointer-events-none opacity-0' : 'opacity-100'
+          }`}
+        >
+          <Wordmark className="text-callout" />
+        </a>
         <p
-          className={`absolute inset-0 flex items-center text-callout text-text-2 transition-opacity duration-200 ${
+          className={`absolute inset-0 hidden items-center text-callout text-text-2 transition-opacity duration-200 md:flex ${
             scrolled ? 'opacity-0' : 'opacity-100'
           }`}
         >

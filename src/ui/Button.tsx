@@ -39,3 +39,37 @@ interface LinkButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 export function LinkButton({ variant = 'secondary', className = '', ...rest }: LinkButtonProps) {
   return <a className={`${BASE} ${VARIANTS[variant]} ${className}`} {...rest} />;
 }
+
+interface ExternalLinkButtonProps extends Omit<
+  AnchorHTMLAttributes<HTMLAnchorElement>,
+  'target' | 'rel'
+> {
+  readonly href: string;
+  readonly variant?: Variant;
+}
+
+/**
+ * A link styled as a button that opens another site in a new tab. Navigation
+ * only: no data from the app goes with it (no referrer, no opener).
+ */
+export function ExternalLinkButton({
+  variant = 'secondary',
+  className = '',
+  children,
+  ...rest
+}: ExternalLinkButtonProps) {
+  return (
+    <a
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`${BASE} ${VARIANTS[variant]} ${className}`}
+      {...rest}
+    >
+      {children}
+      <span aria-hidden className="text-text-2">
+        ↗
+      </span>
+      <span className="sr-only"> (abre em nova aba)</span>
+    </a>
+  );
+}
