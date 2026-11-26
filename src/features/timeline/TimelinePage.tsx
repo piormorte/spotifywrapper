@@ -115,7 +115,7 @@ export function TimelinePage({
   const dailyDisabled = (data?.period.days ?? 0) > MAX_DAILY_DAYS;
 
   return (
-    <main className="mx-auto max-w-[1080px] px-4 pt-8 pb-16 sm:px-8 lg:px-14 lg:pt-14">
+    <main className="mx-auto max-w-[1120px] px-4 pt-6 pb-20 sm:px-6 lg:px-10 lg:pt-8">
       <header className="flex flex-wrap items-end justify-between gap-6">
         <div>
           <h1 className="font-display text-display font-semibold">Linha do tempo</h1>
@@ -151,7 +151,7 @@ export function TimelinePage({
       )}
 
       {state === 'ready' && data && (
-        <div className="mt-16 space-y-20">
+        <div className="mt-2 space-y-12">
           <Section
             title="Atividade"
             caption={`${metric === 'time' ? 'Minutos' : 'Streams'} por ${GRANULARITY_NOUN[data.granularity]} · em destaque, o maior`}

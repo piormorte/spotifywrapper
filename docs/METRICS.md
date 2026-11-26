@@ -39,18 +39,55 @@ média diária não é diluída por dias anteriores à conta.
 
 ## Visão geral
 
-| Métrica                              | Definição                                                                                                    |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| Tempo ouvido                         | Soma de `ms_played` no período, mostrada em minutos; horas = min ÷ 60; dias de reprodução contínua = h ÷ 24. |
-| Streams                              | Quantidade de streams no período.                                                                            |
-| Reproduções registradas              | Quantidade de reproduções registradas no período.                                                            |
-| Faixas / Artistas / Álbuns           | Itens diferentes com pelo menos uma reprodução registrada no período.                                        |
-| Média diária                         | Tempo ouvido ÷ dias de calendário do período (inclui dias sem escuta).                                       |
-| Dias com escuta                      | Dias do período com tempo ouvido maior que zero.                                                             |
-| Mais ouvidos (artista, faixa, álbum) | Ordenados por streams; empate → maior tempo ouvido → nome em ordem alfabética.                               |
-| Dia de pico                          | Dia com maior tempo ouvido; em empate, o mais antigo.                                                        |
-| Ao longo do tempo                    | Tempo ouvido por ano (períodos acima de 2 anos), por mês (acima de 62 dias) ou por dia; destaca o maior.     |
-| Hora do dia                          | Parcela do tempo ouvido em cada hora local (0–23).                                                           |
+| Métrica                              | Definição                                                                                                                                                                                                             |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tempo ouvido                         | Soma de `ms_played` no período, mostrada em minutos; horas = min ÷ 60; dias de reprodução contínua = h ÷ 24.                                                                                                          |
+| Streams                              | Quantidade de streams no período.                                                                                                                                                                                     |
+| Reproduções registradas              | Quantidade de reproduções registradas no período.                                                                                                                                                                     |
+| Faixas / Artistas / Álbuns           | Itens diferentes com pelo menos uma reprodução registrada no período.                                                                                                                                                 |
+| Média diária                         | Tempo ouvido ÷ dias de calendário do período (inclui dias sem escuta).                                                                                                                                                |
+| Dias com escuta                      | Dias do período com tempo ouvido maior que zero.                                                                                                                                                                      |
+| Mais ouvidos (artista, faixa, álbum) | Ordenados por streams; empate → maior tempo ouvido → nome em ordem alfabética.                                                                                                                                        |
+| Dia de pico                          | Dia com maior tempo ouvido; em empate, o mais antigo.                                                                                                                                                                 |
+| Ao longo do tempo                    | Tempo ouvido por ano (períodos acima de 2 anos), por mês (acima de 62 dias) ou por dia; destaca o maior.                                                                                                              |
+| Hora do dia                          | Parcela do tempo ouvido em cada hora local (0–23).                                                                                                                                                                    |
+| Partes do dia                        | Parcela do tempo ouvido de madrugada (0h–5h59), manhã (6h–11h59), tarde (12h–17h59) e noite (18h–23h59).                                                                                                              |
+| Mais ouvidos na tela                 | 5 artistas e 5 faixas; 10 álbuns (grade de capas). Participação = streams do artista ÷ streams do período.                                                                                                            |
+| vs. período anterior                 | Variação em relação à janela de mesmo tamanho que termina no dia anterior ao início do período. Só aparece quando os dados cobrem essa janela inteira e o valor anterior é maior que zero; nunca em "Todo o período". |
+
+### Frase de identidade
+
+A frase "… soou como A, B e C" da Visão geral e da Retrospectiva é montada por regras fixas
+(`identityTraits` em `src/stats/personality.ts`), com os mesmos limites do Perfil de escuta.
+A base de cada parte aparece logo abaixo da frase.
+
+| Parte | Regra                                                                                                                                                                                |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A     | Parte do dia com maior tempo ouvido: "madrugadas acordadas", "manhãs com trilha sonora", "tardes embaladas" ou "noites de música".                                                   |
+| B     | 5 artistas com ≥ 50% dos streams → "fidelidade a poucos artistas"; abaixo disso → "um repertório espalhado".                                                                         |
+| C     | ≥ 5 streams por faixa → "faixas no repeat"; senão, ≥ 30% de artistas novos (só se o período começa depois do primeiro dia de dados) → "muita descoberta"; senão → "pouca repetição". |
+
+### Capas e imagens
+
+Os arquivos exportados não trazem capas, fotos nem gêneros, e o app não busca imagens. As artes
+de álbuns e artistas são **geradas a partir do nome** (`src/ui/cover-art.ts`): um degradê de
+baixa saturação com matiz derivado do nome e as iniciais ou o título. São determinísticas e
+nunca imitam uma capa real.
+
+## Retrospectiva
+
+Sequência de slides com os números do período escolhido; nenhum número novo é calculado.
+
+| Slide         | Fonte                                                                                                                            |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Tempo ouvido  | Tempo ouvido, horas, dias contínuos e dia de pico da Visão geral.                                                                |
+| Artista nº 1  | Primeiro dos mais ouvidos: streams, participação nos streams e tempo ouvido.                                                     |
+| Trilha sonora | 5 faixas mais ouvidas.                                                                                                           |
+| Gosto musical | Artistas com stream, artistas equivalentes (diversidade), participação dos 5 primeiros e novos artistas (Análises). Sem gêneros. |
+| Personalidade | Frase de identidade e até 3 observações do Perfil de escuta.                                                                     |
+| Resumo        | Artista, faixa e álbum mais ouvidos (ou a hora mais ativa, sem álbum) e minutos ouvidos.                                         |
+
+Sem streams no período, só a abertura aparece.
 
 ## Rankings (Faixas, Artistas, Álbuns)
 

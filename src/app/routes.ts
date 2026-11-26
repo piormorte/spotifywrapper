@@ -4,6 +4,7 @@
  */
 export const ROUTES = [
   'visao-geral',
+  'sua-musica',
   'historico',
   'faixas',
   'artistas',
@@ -11,6 +12,7 @@ export const ROUTES = [
   'linha-do-tempo',
   'analises',
   'perfil',
+  'retrospectiva',
   'exportar',
   'importar',
   'ajustes',

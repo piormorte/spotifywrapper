@@ -17,7 +17,7 @@ export function ProgressBar({ label, value }: ProgressBarProps) {
       className="h-1 w-full overflow-hidden rounded-full bg-fill-1"
     >
       <div
-        className={`h-full rounded-full bg-accent transition-[width] duration-300 ease-standard ${
+        className={`motion-move h-full rounded-full bg-accent transition-[width] duration-300 ease-standard ${
           pct === null ? 'w-1/3 animate-pulse' : ''
         }`}
         style={pct === null ? undefined : { width: `${pct}%` }}

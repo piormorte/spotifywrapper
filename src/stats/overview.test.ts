@@ -72,12 +72,16 @@ describe('overview (all time)', () => {
       ['Y', 2, 480_000],
       ['X', 2, 320_000],
     ]);
-    expect(o?.topTracks.map((e) => [e.name, e.artist, e.streams])).toEqual([
-      ['C', 'Y', 2],
-      ['A', 'X', 2],
-      ['B', 'X', 0],
+    expect(o?.topTracks.map((e) => [e.name, e.artist, e.album, e.streams])).toEqual([
+      ['C', 'Y', 'Q', 2],
+      ['A', 'X', 'P', 2],
+      ['B', 'X', 'P', 0],
     ]);
-    expect(o?.topAlbums.map((e) => e.name)).toEqual(['Q', 'P']);
+    expect(o?.topAlbums.map((e) => [e.name, e.album])).toEqual([
+      ['Q', null],
+      ['P', null],
+    ]);
+    expect(o?.topArtists.every((e) => e.album === null)).toBe(true);
   });
 
   it('finds the peak day and the hourly profile in local time', () => {

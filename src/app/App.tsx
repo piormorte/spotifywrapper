@@ -9,6 +9,7 @@ import { ROUTE_TITLES } from './route-titles.ts';
 import { parseRoute, type Route } from './routes.ts';
 import { Shell } from './Shell.tsx';
 import { applyTheme, type ThemePreference } from './theme.ts';
+import { ScreenSkeleton } from '../ui/Skeleton.tsx';
 
 // Screens beyond the first visit load on demand (all are precached for offline use).
 const HistoryPage = lazy(() =>
@@ -36,6 +37,12 @@ const ExportStudioPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('../features/settings/SettingsPage.tsx').then((m) => ({ default: m.SettingsPage })),
 );
+const LibraryPage = lazy(() =>
+  import('../features/library/LibraryPage.tsx').then((m) => ({ default: m.LibraryPage })),
+);
+const WrappedPage = lazy(() =>
+  import('../features/wrapped/WrappedPage.tsx').then((m) => ({ default: m.WrappedPage })),
+);
 const ReferencePage = lazy(() =>
   import('../design/ReferencePage.tsx').then((m) => ({ default: m.ReferencePage })),
 );
@@ -44,9 +51,9 @@ const THEMES: readonly ThemePreference[] = ['system', 'light', 'dark'];
 
 function Loading() {
   return (
-    <p aria-live="polite" className="px-4 pt-14 text-callout text-text-2 sm:px-8 lg:px-14">
-      Carregando…
-    </p>
+    <div className="mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-10">
+      <ScreenSkeleton />
+    </div>
   );
 }
 
@@ -56,6 +63,8 @@ export function App() {
   const [theme, setThemeState] = useState<ThemePreference>('system');
   // The period is shared by the overview, rankings, timeline, analytics and exports.
   const [period, setPeriod] = useState<PeriodSpec>({ preset: 'all' });
+  const [displayName, setDisplayNameState] = useState('');
+  const [collapsed, setCollapsedState] = useState(false);
   const firstRoute = useRef(true);
 
   useEffect(() => {
@@ -99,6 +108,12 @@ export function App() {
         setThemeState(value as ThemePreference);
       }
     });
+    void client.call('getSetting', 'displayName').then((value) => {
+      if (lifecycle.active && value) setDisplayNameState(value);
+    });
+    void client.call('getSetting', 'sidebar').then((value) => {
+      if (lifecycle.active) setCollapsedState(value === 'collapsed');
+    });
     return () => {
       lifecycle.active = false;
     };
@@ -116,6 +131,23 @@ export function App() {
     [client],
   );
 
+  const setDisplayName = useCallback(
+    (next: string) => {
+      const value = next.trim().slice(0, 40);
+      setDisplayNameState(value);
+      void client.call('setSetting', { key: 'displayName', value });
+    },
+    [client],
+  );
+
+  const setCollapsed = useCallback(
+    (next: boolean) => {
+      setCollapsedState(next);
+      void client.call('setSetting', { key: 'sidebar', value: next ? 'collapsed' : 'expanded' });
+    },
+    [client],
+  );
+
   const screen = (node: ReactNode) => (
     <ErrorBoundary key={route}>
       <Suspense fallback={<Loading />}>
@@ -127,12 +159,19 @@ export function App() {
   if (route === 'referencia') {
     return screen(<ReferencePage theme={theme} onThemeChange={setTheme} />);
   }
+  if (route === 'retrospectiva') {
+    return screen(
+      <WrappedPage period={period} onPeriodChange={setPeriod} displayName={displayName} />,
+    );
+  }
 
   const page = (() => {
     const periodProps = { period, onPeriodChange: setPeriod };
     switch (route) {
       case 'visao-geral':
-        return <OverviewPage {...periodProps} />;
+        return <OverviewPage {...periodProps} displayName={displayName} />;
+      case 'sua-musica':
+        return <LibraryPage {...periodProps} />;
       case 'historico':
         return <HistoryPage />;
       case 'faixas':
@@ -152,11 +191,28 @@ export function App() {
       case 'importar':
         return <ImportPage />;
       case 'ajustes':
-        return <SettingsPage theme={theme} onThemeChange={setTheme} />;
+        return (
+          <SettingsPage
+            theme={theme}
+            onThemeChange={setTheme}
+            displayName={displayName}
+            onDisplayNameChange={setDisplayName}
+          />
+        );
       case 'mais':
         return <MorePage route={route} />;
     }
   })();
 
-  return <Shell route={route}>{screen(page)}</Shell>;
+  return (
+    <Shell
+      route={route}
+      period={period}
+      displayName={displayName}
+      collapsed={collapsed}
+      onCollapsedChange={setCollapsed}
+    >
+      {screen(page)}
+    </Shell>
+  );
 }

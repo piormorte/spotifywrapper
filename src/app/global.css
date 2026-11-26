@@ -31,26 +31,108 @@
     border-radius: 4px;
   }
 
+  /*
+   * Reduced motion (Windows "Animation effects" off, macOS/iOS "Reduce motion"):
+   * keep short opacity and colour fades — they carry state changes — and drop
+   * everything that moves. Displacement in keyframes already collapses through
+   * --motion-distance / --motion-scale; `.motion-move` marks transitions of
+   * position or size, which become instant.
+   */
   @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
+    html {
+      scroll-behavior: auto !important;
+    }
+    .motion-move,
+    .motion-move * {
       transition-duration: 0.01ms !important;
+    }
+    .motion-drift {
+      animation: none !important;
     }
   }
 }
 
-@keyframes route-enter {
+@keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(var(--motion-distance)) scale(var(--motion-scale));
   }
 }
 
-/* Screens fade in on navigation; disabled by the reduced-motion rule above. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--drift-rotate, 0deg));
+  }
+  50% {
+    transform: translate3d(0, -6px, 0) rotate(var(--drift-rotate, 0deg));
+  }
+}
+
+/* Screens enter with a short fade (and a small rise when motion is allowed). */
 .route-enter {
-  animation: route-enter 280ms var(--ease-emphasized) both;
+  animation: fade-up 320ms var(--ease-out) backwards;
+}
+
+/* Staggered entrance: set --i on each child. */
+.enter {
+  animation: fade-up 520ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+.fade {
+  animation: fade-in 360ms var(--ease-standard) both;
+}
+
+/* Reduced motion: the same entrances as short, simultaneous cross-fades. */
+@media (prefers-reduced-motion: reduce) {
+  .route-enter,
+  .enter,
+  .fade {
+    animation-name: fade-in;
+    animation-duration: 200ms;
+    animation-delay: 0ms;
+  }
+}
+
+/* Slow ambient float for cover art. Removed entirely under reduced motion. */
+.motion-drift {
+  animation: drift 9s var(--ease-standard) infinite;
+  animation-delay: calc(var(--i, 0) * -1.3s);
+}
+
+/* Loading placeholder: a soft sheen across a fill, opacity-only under reduced motion. */
+.skeleton {
+  border-radius: var(--radius-tile);
+  background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--text-1) 5%, transparent) 50%,
+      transparent 100%
+    )
+    var(--fill-1);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: fade-in 1.2s var(--ease-standard) infinite alternate;
+  }
 }
 
 @utility numeric {
@@ -63,7 +145,7 @@
   line-height: var(--text-caption--line-height);
   letter-spacing: var(--text-caption--letter-spacing);
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-2);
 }
 
@@ -71,4 +153,47 @@
   border-color: var(--separator);
   border-style: solid;
   border-width: 0;
+}
+
+/* Content surface: one hairline, a whisper of shadow, a top highlight. */
+@utility card {
+  background-color: var(--surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--highlight), var(--shadow-card);
+}
+
+/* Interactive card: lifts slightly on hover (no lift under reduced motion). */
+@utility card-interactive {
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-standard),
+    background-color var(--dur-base) var(--ease-standard);
+  &:hover {
+    background-color: var(--surface-2);
+    box-shadow: var(--highlight), var(--shadow-raised);
+    transform: translateY(calc(var(--motion-distance) * -0.2));
+  }
+}
+
+/* Ambient light: a faint jade glow from the top corner of a panel. */
+@utility ambient {
+  background-image:
+    radial-gradient(120% 90% at 0% 0%, var(--accent-glow) 0%, transparent 55%),
+    radial-gradient(
+      80% 70% at 100% 100%,
+      color-mix(in srgb, var(--text-1) 3%, transparent) 0%,
+      transparent 60%
+    );
+}
+
+/* Translucent window chrome (top bar, tab bar). */
+@utility chrome {
+  background-color: var(--chrome);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+/* Headings receive focus after navigation (for screen readers); no ring for that. */
+main h1[tabindex='-1']:focus {
+  outline: none;
 }

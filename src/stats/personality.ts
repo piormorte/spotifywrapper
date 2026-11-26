@@ -189,3 +189,77 @@ export function personality(a: Analytics, years: readonly YearTotal[]): Observat
 
   return out;
 }
+
+/** One clause of the identity sentence, with the rule that chose it. */
+export interface IdentityTrait {
+  readonly id: 'daypart' | 'loyalty' | 'texture';
+  readonly phrase: string;
+  readonly basis: string;
+}
+
+const DAYPART_PHRASE = {
+  night: 'madrugadas acordadas',
+  morning: 'manhãs com trilha sonora',
+  afternoon: 'tardes embaladas',
+  evening: 'noites de música',
+} as const;
+
+/**
+ * The three clauses of the overview's "sounded like" sentence
+ * (docs/METRICS.md, "Frase de identidade"). Each clause is chosen by the same
+ * fixed thresholds as the observations, so the sentence never claims more
+ * than the figures show. Empty when there are no streams.
+ */
+export function identityTraits(a: Analytics): IdentityTrait[] {
+  if (a.diversity.artists === 0) return [];
+  const pct = (x: number) => formatPercent(x);
+  const parts = Object.entries(a.dayparts) as [keyof typeof DAYPART_PHRASE, number][];
+  const [topPart, topShare] = parts.reduce((best, cur) => (cur[1] > best[1] ? cur : best));
+
+  const traits: IdentityTrait[] = [
+    {
+      id: 'daypart',
+      phrase: DAYPART_PHRASE[topPart],
+      basis: `${pct(topShare)} do tempo ouvido ${DAYPARTS[topPart][0]}`,
+    },
+    a.loyalty.top5Share >= THRESHOLDS.concentrated
+      ? {
+          id: 'loyalty',
+          phrase: 'fidelidade a poucos artistas',
+          basis: `5 artistas somam ${pct(a.loyalty.top5Share)} dos streams`,
+        }
+      : {
+          id: 'loyalty',
+          phrase: 'um repertório espalhado',
+          basis: `5 artistas somam só ${pct(a.loyalty.top5Share)} dos streams`,
+        },
+  ];
+
+  const periodStartsLater = a.period.from > (parseDayKey(a.dataFirstDay) ?? 0);
+  if (a.streamsPerTrack >= THRESHOLDS.repetitive) {
+    traits.push({
+      id: 'texture',
+      phrase: 'faixas no repeat',
+      basis: `${formatDecimal(a.streamsPerTrack, 1)} streams por faixa, em média`,
+    });
+  } else if (periodStartsLater && a.discovery.newArtistShare >= THRESHOLDS.discovery) {
+    traits.push({
+      id: 'texture',
+      phrase: 'muita descoberta',
+      basis: `${pct(a.discovery.newArtistShare)} dos artistas ouvidos pela primeira vez`,
+    });
+  } else {
+    traits.push({
+      id: 'texture',
+      phrase: 'pouca repetição',
+      basis: `${formatDecimal(a.streamsPerTrack, 1)} streams por faixa, em média`,
+    });
+  }
+  return traits;
+}
+
+/** "a, b e c" */
+export function joinPhrases(phrases: readonly string[]): string {
+  if (phrases.length <= 1) return phrases.join('');
+  return `${phrases.slice(0, -1).join(', ')} e ${phrases.at(-1) ?? ''}`;
+}

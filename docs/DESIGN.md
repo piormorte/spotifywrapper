@@ -1,91 +1,145 @@
 # Design system — Liner
 
-> Status: **aprovado em 25/11/2026** (Etapa 1). Toda tela nova segue este documento.
+> Status: **Etapa 2 — redesign premium, 26/11/2026**, pedido pelo dono do projeto. Substitui a
+> direção da Etapa 1 (25/11/2026: tipografia sem contêineres). Toda tela nova segue este documento.
 
-Referência viva: `npm run dev` → `http://127.0.0.1:5173/` (referência) e `#exemplo` (tela de exemplo).
-Todos os nomes e números exibidos nessas páginas são **fictícios** (`src/design/demo-data.ts`).
+Referência viva: `npm run dev` → `#referencia`. Os nomes e números dessa página são **fictícios**
+(`src/design/demo-data.ts`).
+
+## Conceito
+
+Uma plataforma pessoal de inteligência musical que transforma o histórico em uma experiência
+visual. Referências: a hierarquia e o espaçamento do iOS/macOS, a apresentação de dados do Apple
+Music Replay, a precisão do Linear e a personalidade de uma retrospectiva anual. Não é um clone de
+nenhum serviço de streaming nem um painel administrativo.
 
 ## Princípios
 
-1. **Os números são os protagonistas.** Cada tela tem um número principal, e a hierarquia vem da tipografia, não de caixas.
-2. **Um destaque por vez.** A cor de destaque marca um único dado por tela. Os gráficos secundários ficam em cinza.
-3. **Sem contêineres.** Nada de cards, sombras ou gradientes. As seções se separam por espaço e, quando necessário, por uma linha fina (`--separator`).
-4. **Sempre com unidade.** Todo número diz o que mede: streams, reproduções registradas ou tempo ouvido.
+1. **Os números são os protagonistas.** A hierarquia vem da tipografia e do tamanho dos cartões:
+   um número herói por tela, alguns grandes, vários pequenos.
+2. **Um destaque por vez.** O jade marca um único dado por bloco (a barra maior, o artista nº 1).
+   Todo o resto é neutro.
+3. **Superfícies discretas.** Cartões com uma linha fina, sombra quase imperceptível e um brilho
+   de 1 px no topo. Sem glassmorphism em tudo: a translucidez fica só na barra superior e na barra
+   de abas.
+4. **Sempre com unidade e com base.** Todo número diz o que mede; toda frase interpretativa mostra
+   os números em que se apoia.
+5. **Nada inventado.** Sem capa, foto ou gênero nos arquivos, o app gera artes tipográficas e
+   omite o que não existe (ver `docs/METRICS.md`, "Capas e imagens").
 
 ## Tokens (`src/ui/tokens.css`)
 
-| Token       | Claro   | Escuro  | Uso                                                  |
-| ----------- | ------- | ------- | ---------------------------------------------------- |
-| `--bg`      | #FFFFFF | #000000 | Fundo                                                |
-| `--surface` | #F5F5F7 | #0D0D0E | Superfícies raras                                    |
-| `--fill-1`  | #E8E8ED | #1C1C1E | Controles                                            |
-| `--fill-2`  | #D2D2D7 | #2C2C2E | Séries de gráfico                                    |
-| `--text-1`  | #1D1D1F | #F5F5F7 | Texto primário                                       |
-| `--text-2`  | #636368 | #A1A1A6 | Texto secundário (≥ 4,5:1 também sobre controles)    |
-| `--text-3`  | #737378 | #7C7C82 | Texto terciário (≥ 4,5:1)                            |
-| `--accent`  | #08784F | #47D7A0 | Destaque: jade próprio, distinto do verde da Spotify |
+O escuro é o design principal; o claro é uma tradução fiel. O tema segue `prefers-color-scheme`
+e pode ser forçado em Ajustes (`data-theme` em `<html>`).
 
-O tema segue `prefers-color-scheme` e pode ser forçado com `data-theme="light|dark"` em `<html>`.
+| Token           | Escuro                 | Claro            | Uso                                            |
+| --------------- | ---------------------- | ---------------- | ---------------------------------------------- |
+| `--bg`          | #09090B                | #F5F5F7          | Fundo da janela                                |
+| `--bg-2`        | #111114                | #ECECF0          | Barra lateral                                  |
+| `--surface`     | #18181B                | #FFFFFF          | Cartões                                        |
+| `--surface-2`   | #202024                | #FFFFFF          | Cartões em hover, tooltips, avisos             |
+| `--fill-1`      | #202024                | #E8E8ED          | Controles, trilhas de barras                   |
+| `--fill-2`      | #34343A                | #D2D2D7          | Séries neutras dos gráficos                    |
+| `--border`      | rgba(255,255,255,0.08) | rgba(0,0,0,0.08) | Linha fina dos cartões e separadores           |
+| `--text-1`      | #F5F5F7                | #1D1D1F          | Texto primário                                 |
+| `--text-2`      | #A1A1AA                | #55555C          | Texto secundário                               |
+| `--text-3`      | #8B8B94                | #66666D          | Texto terciário (≥ 4,5:1 também sobre cartões) |
+| `--accent`      | #47D7A0                | #08784F          | Destaque: jade próprio, não o verde da Spotify |
+| `--accent-glow` | jade a 7%              | jade a 10%       | Iluminação ambiente dos painéis herói          |
+
+- O terciário proposto no briefing (#71717A) ficava abaixo de 4,5:1 sobre `--surface-2`; por isso
+  #8B8B94, que mantém a mesma temperatura.
+- A Retrospectiva usa sempre o palco escuro (`.stage-dark`), em qualquer tema.
 
 ## Tipografia
 
-- **Interface:** SF Pro (Apple) → Segoe UI Variable (Windows) → Inter (incluída no app) → system-ui.
-- **Exportações:** sempre Inter, para o resultado ser idêntico em qualquer plataforma.
-- **Escala:** `hero`, `display`, `title-1..3`, `body`, `callout`, `footnote`, `caption`. Não se usam tamanhos avulsos.
-- **Números:** pesos leves (200–300) e algarismos tabulares (utilitário `numeric`).
+- **Interface:** SF Pro (Apple) → Segoe UI Variable (Windows) → Inter (incluída) → system-ui.
+- **Exportações:** sempre Inter.
+- **Escala:** `mega` (Retrospectiva), `hero`, `display`, `title-1..3`, `body`, `callout`,
+  `footnote`, `caption`. Sem tamanhos avulsos.
+- **Números:** pesos leves (200–300) e algarismos tabulares (`numeric`). Nomes em destaque usam o
+  peso semibold do display.
 
-## Espaço, raios e movimento
+## Espaço, raios e sombras
 
-- Escala de espaço de 4 pt: 4, 8, 12, 16, 24, 32, 48, 64, 96 e 128.
-- Raios apenas em controles: `--radius-control` (8 px) e `--radius-pill`.
-- Movimento:
-  - `--ease-standard` em transições de 200 ms.
-  - `--ease-emphasized` em deslocamentos (300–500 ms), como o marcador do controle segmentado e as barras dos gráficos.
-  - Todo movimento respeita `prefers-reduced-motion`.
+- Espaço em múltiplos de 4 px. Calhas de página: 16 px (celular), 24 px (tablet), 40 px (desktop).
+- Raios por hierarquia: controles 10 px (`rounded-control`), linhas e blocos 12 px
+  (`rounded-tile`), cartões 16 px (`rounded-card`), painéis herói 20 px (`rounded-panel`),
+  pílulas. Artes de capa: 18% do lado; artistas: círculo.
+- Sombras: `shadow-card` (linha fina + 1 px) e `shadow-raised` (hover, tooltips, avisos).
+
+## Movimento
+
+- `--ease-out` em entradas (320–520 ms), `--ease-emphasized` em deslocamentos (marcador do
+  controle segmentado, barras), `--ease-standard` em cor e opacidade (200 ms).
+- **Entradas:** `.route-enter` na troca de tela; `.enter` com `--i` para escalonar cartões e
+  listas (55 ms por item); `.fade` para conteúdo que chega depois.
+- **Números:** as estatísticas contam até o valor final (900 ms, desaceleração exponencial,
+  `src/lib/countup.ts`); datas, horários e anos aparecem direto, e o último quadro é sempre o
+  texto original.
+- **Hover:** cartões interativos sobem 2 px e ganham `shadow-raised`; gráficos mostram tooltip.
+- **Carregamento:** esqueletos com brilho suave (`.skeleton`, `ScreenSkeleton`).
+- **Movimento reduzido** (`prefers-reduced-motion`, por exemplo "Efeitos de animação" desligado
+  no Windows ou "Reduzir movimento" no macOS/iOS):
+  - fades **continuam**, curtos (200 ms) e simultâneos, porque comunicam mudança de estado;
+  - todo deslocamento some: `--motion-distance` e `--motion-scale` viram 0 e 1;
+  - transições de posição ou tamanho marcadas com `.motion-move` ficam instantâneas;
+  - flutuação das capas (`.motion-drift`) e contagens animadas são desligadas (o número final
+    aparece direto).
+
+## Navegação
+
+| Contexto          | Forma                                                                                     |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| Desktop (≥ 1024)  | Barra lateral translúcida com ícones Lucide, grupos "Insights" e "Biblioteca", recolhível |
+| Tablet (768–1023) | Trilho só com ícones (nome como rótulo acessível e dica)                                  |
+| Celular (< 768)   | Barra de abas estilo iOS: Início, Música, Retrospectiva, Histórico, Mais                  |
+
+A barra superior mostra a saudação (que vira o título da tela ao rolar), o período ativo, Ajustes
+e o avatar. O nome exibido é opcional e fica no banco local (Ajustes → Perfil).
 
 ## Componentes
 
-| Componente          | Arquivo                       | Notas                                                                                           |
-| ------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------- |
-| Controle segmentado | `src/ui/SegmentedControl.tsx` | Semântica de radiogroup, navegação pelas setas, marcador animado, rótulos curtos no celular     |
-| Estatística         | `src/ui/Figure.tsx`           | Rótulo, número, unidade e nota, sem contêiner                                                   |
-| Ranking             | `src/ui/RankList.tsx`         | Linhas separadas por linha fina, posição em cinza terciário                                     |
-| Gráfico de barras   | `src/ui/BarChart.tsx`         | Uma série, sem grade; a geometria vem de `src/charts/bars.ts`, compartilhada com as exportações |
-| Shell               | `src/app/Shell.tsx`           | Barra lateral só com texto no desktop e barra inferior só com texto no celular                  |
+| Componente          | Arquivo                       | Notas                                                                       |
+| ------------------- | ----------------------------- | --------------------------------------------------------------------------- |
+| Cartão              | `card`, `card-interactive`    | Utilitários em `src/app/global.css`                                         |
+| Estatística         | `src/ui/StatTile.tsx`         | Tamanhos herói, grande e pequeno; ícone, nota e comparação opcional         |
+| Figura              | `src/ui/Figure.tsx`           | Número sem cartão, para grades densas (Análises, Linha do tempo)            |
+| Arte de capa        | `src/ui/Cover.tsx`            | Iniciais, título ou vazia; quadrada ou circular; decorativa (`aria-hidden`) |
+| Seção               | `src/ui/Section.tsx`          | Título, legenda, ação ("Ver todos") e cartão                                |
+| Ranking             | `src/ui/RankList.tsx`         | Biblioteca: posição, arte, título, subtítulo, métrica                       |
+| Barras horizontais  | `src/ui/ShareBars.tsx`        | Composição percentual (partes do dia)                                       |
+| Gráfico de barras   | `src/ui/BarChart.tsx`         | Uma série, sem grade, tooltip; geometria de `src/charts/bars.ts`            |
+| Controle segmentado | `src/ui/SegmentedControl.tsx` | Radiogroup, setas, marcador animado                                         |
+| Botões              | `src/ui/Button.tsx`           | Primário monocromático, secundário, fantasma, destrutivo; `LinkButton`      |
+| Esqueleto           | `src/ui/Skeleton.tsx`         | Blocos de carregamento                                                      |
+| Shell               | `src/app/Shell.tsx`           | Barra lateral, trilho, barra superior e barra de abas                       |
+
+## Telas
+
+- **Visão geral:** painel herói "Sua música, sua história." com mosaico de capas e a frase de
+  identidade; grade de estatísticas com pesos diferentes; artistas em grade assimétrica (o nº 1
+  ocupa 2 × 2); faixas como biblioteca; ritmo do dia; capas dos álbuns; evolução no tempo.
+- **Sua música:** biblioteca visual do período (parede de álbuns, retratos de artistas, faixas em
+  duas colunas).
+- **Retrospectiva:** sete slides em tela cheia (abertura, tempo, artista nº 1, trilha sonora,
+  gosto musical, personalidade, resumo). Setas, Espaço, Home/End e Esc no teclado; toque nas
+  laterais ou deslize no celular; barra de progresso clicável; o resumo leva ao Export Studio.
+- **Gêneros:** não existe tela de gêneros: os arquivos não trazem essa informação. O gosto é
+  medido pela variedade de artistas.
 
 ## Exportações
 
-O Export Studio (`#exportar`) desenha peças editoriais diretamente em Canvas (`src/export/`), sem React e sem capturas de tela:
+O Export Studio (`#exportar`) desenha peças em Canvas (`src/export/`), sem React e sem capturas
+de tela. A unidade de design é 1 u = 1 px no lado menor de 1080. Formatos: Stories 1080 × 1920,
+Quadrado 1080 × 1080, X 1200 × 675, tamanho livre (600–4000 px) e PDF A4 de 4 páginas. Sempre
+Inter; um destaque (o período, em jade).
 
-- **Unidade de design:** 1 u = 1 px no lado menor de 1080, de modo que todos os formatos escalam a partir do mesmo desenho.
-- **Formatos:** Stories 1080 × 1920, Quadrado 1080 × 1080, X 1200 × 675, tamanho livre (600–4000 px) e relatório PDF de 4 páginas A4.
-- **Layout:**
-  - Os blocos (número principal, grade de estatísticas, ranking, barras, observações) fluem entre o cabeçalho e o rodapé.
-  - Formatos largos usam duas colunas.
-  - Quando falta espaço, listas anteriores encolhem antes de um bloco posterior ser descartado.
-- **Cor e tipografia:** sempre Inter. Um único destaque: o período, em jade, acima do título. A barra máxima dos gráficos usa a cor do texto, não o destaque.
-- **Sem capas:** a v1 não usa a Web API.
+## Acessibilidade
 
-## Decisões aprovadas (25/11/2026)
-
-1. **Nome:** Liner.
-2. **Idioma da interface:** português, com seções em português ("Visão geral", "Linha do tempo"). "Export Studio" e "Streams" ficam como estão.
-3. **Cor de destaque:** jade #47D7A0 (escuro) / #08784F (claro).
-4. **Direção visual:** a referência (`#referencia`) e a tela de exemplo (`#exemplo`) são a base aprovada.
-
-## Acessibilidade (Etapa 9)
-
-- **Auditoria automática:** todas as telas passam no axe-core com as regras WCAG 2.2 AA, nos temas claro e escuro, em desktop e celular (`tests/e2e/a11y.spec.ts`).
-- **Contraste:** `--text-2` claro passou a #636368 e `--critical` claro a #B80012, para manter 4,5:1 também sobre o fundo dos controles.
-- **Teclado:**
-  - Um botão "Pular para o conteúdo" aparece no primeiro Tab.
-  - Ao trocar de tela, o foco vai para o título (h1) e o título da aba muda.
-  - Controles segmentados e listas de opções usam setas, Home e End, com uma única parada de Tab.
-- **Leitores de tela:**
-  - Os controles abreviados no celular têm o rótulo completo como nome acessível.
-  - Os gráficos têm título e um valor por barra.
-  - Progresso e resultados são anunciados (`aria-live`).
-- **Movimento:**
-  - As telas entram com um fade curto de 280 ms.
-  - As barras dos gráficos animam ao mudar.
-  - Tudo é desligado com `prefers-reduced-motion`.
+- Todas as telas, incluindo Sua música e Retrospectiva, passam no axe-core (WCAG 2.2 AA) nos
+  dois temas, em desktop e celular (`tests/e2e/a11y.spec.ts`).
+- "Pular para o conteúdo" no primeiro Tab; ao trocar de tela, o foco vai para o h1.
+- Artes de capa são decorativas; o nome sempre aparece em texto.
+- Na Retrospectiva, só o slide atual fica acessível (os outros são `inert`), a posição é
+  anunciada (`aria-live`) e números animados têm o valor final para leitores de tela.

@@ -61,12 +61,12 @@ export function SegmentedControl<T extends string>({
       role="radiogroup"
       aria-label={label}
       onKeyDown={onKeyDown}
-      className={`relative max-w-full rounded-control bg-fill-1 p-0.5 ${fullWidth ? 'flex w-full' : 'inline-flex'}`}
+      className={`motion-move relative max-w-full rounded-control bg-fill-1 p-[3px] ${fullWidth ? 'flex w-full' : 'inline-flex'}`}
     >
       {thumb && (
         <span
           aria-hidden
-          className="absolute top-0.5 bottom-0.5 rounded-[calc(var(--radius-control)-2px)] bg-bg shadow-[0_1px_2px_rgb(0_0_0/0.12)] transition-[left,width] duration-300 ease-emphasized"
+          className="absolute top-[3px] bottom-[3px] rounded-[calc(var(--radius-control)-3px)] bg-surface shadow-[0_1px_3px_rgb(0_0_0/0.18),0_0_0_0.5px_var(--border)] transition-[left,width] duration-300 ease-emphasized"
           style={{ left: thumb.left, width: thumb.width }}
         />
       )}
@@ -86,7 +86,7 @@ export function SegmentedControl<T extends string>({
             onClick={() => {
               onChange(segment.value);
             }}
-            className={`relative z-10 rounded-[calc(var(--radius-control)-2px)] py-1.5 text-footnote whitespace-nowrap transition-colors ${
+            className={`relative z-10 rounded-[calc(var(--radius-control)-3px)] py-1.5 text-footnote whitespace-nowrap transition-colors ${
               fullWidth ? 'flex-auto px-2.5' : 'shrink-0 px-3.5'
             } ${selected ? 'font-medium text-text-1' : 'text-text-2 hover:text-text-1'}`}
           >

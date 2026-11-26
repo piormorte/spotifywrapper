@@ -33,6 +33,8 @@ test('renders without console errors, CSP violations or external requests', asyn
 
 for (const path of [
   '/',
+  '/#sua-musica',
+  '/#retrospectiva',
   '/#historico',
   '/#faixas',
   '/#artistas',

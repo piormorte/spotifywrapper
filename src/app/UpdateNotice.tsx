@@ -20,7 +20,7 @@ export function UpdateNotice() {
   return (
     <div
       role="status"
-      className="hairline fixed right-4 bottom-24 z-30 flex max-w-[calc(100vw-2rem)] items-center gap-4 rounded-control border bg-bg px-4 py-3 shadow-[0_8px_24px_rgb(0_0_0/0.18)] lg:bottom-6"
+      className="fade fixed right-4 bottom-24 z-30 flex max-w-[calc(100vw-2rem)] items-center gap-4 rounded-card bg-surface-2 px-4 py-3 shadow-raised md:bottom-6"
     >
       <p className="text-footnote text-text-1">
         {needRefresh ? 'Há uma nova versão do Liner.' : 'O Liner já funciona sem internet.'}

@@ -52,8 +52,7 @@ test('shows activity, the weekly heatmap, yearly leaders and a like-for-like com
 
   const leaders = page
     .getByRole('heading', { name: 'Artista de cada ano' })
-    .locator('..')
-    .locator('..');
+    .locator('xpath=ancestor::section[1]');
   await expect(leaders).toContainText('2023');
   await expect(leaders).toContainText('Artist One');
   await expect(leaders).toContainText('Artist Two');

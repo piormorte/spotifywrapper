@@ -5,14 +5,14 @@ test.describe('themes', () => {
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/#ajustes');
     const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    expect(await bg()).toBe('rgb(0, 0, 0)');
+    expect(await bg()).toBe('rgb(9, 9, 11)');
 
     await page
       .getByRole('radiogroup', { name: 'Tema' })
       .getByRole('radio', { name: 'Claro' })
       .click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-    await expect.poll(bg).toBe('rgb(255, 255, 255)');
+    await expect.poll(bg).toBe('rgb(245, 245, 247)');
 
     await page
       .getByRole('radiogroup', { name: 'Tema' })
